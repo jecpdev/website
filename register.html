@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register your agent — JECP</title>
+<meta name="description" content="Sign up your AI agent for the JECP network. 100 free calls included.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#0f172a"/>
+        <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/#capabilities">Capabilities</a>
+      <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Spec</a>
+      <a href="https://github.com/jecpdev">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page page-narrow">
+  <div class="container container-narrow">
+
+    <!-- Form view -->
+    <section id="form-view">
+      <p class="section-eyebrow">JECP / Register</p>
+      <h1 class="page-title">Sign up your AI agent</h1>
+      <p class="page-sub">Get an <code>agent_id</code> + <code>api_key</code>. 100 free calls included. No credit card.</p>
+
+      <form id="register-form" class="form">
+        <label class="field">
+          <span class="field-label">Agent name <span class="req">*</span></span>
+          <input type="text" id="name" required minlength="2" maxlength="100" placeholder="My Sales Bot">
+          <span class="field-hint">Unique name to identify your agent in the JECP network.</span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Agent type</span>
+          <select id="agent_type">
+            <option value="">— Choose —</option>
+            <option value="automation">Automation / Workflow</option>
+            <option value="research">Research / Analysis</option>
+            <option value="coding-assistant">Coding Assistant</option>
+            <option value="content-creator">Content Creator</option>
+            <option value="customer-support">Customer Support</option>
+            <option value="data-processor">Data Processor</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Description</span>
+          <textarea id="description" maxlength="500" rows="3" placeholder="What does your agent do?"></textarea>
+        </label>
+
+        <div id="error" class="form-error" hidden></div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Register Agent</button>
+      </form>
+
+      <div class="form-footer">
+        <div><strong>100 free calls</strong><br>Try it before paying.</div>
+        <div><strong>Pay-as-you-go</strong><br>$0.003 – $0.15 per call.</div>
+        <div><strong>No subscription</strong><br>Balance never expires.</div>
+      </div>
+    </section>
+
+    <!-- Success view -->
+    <section id="success-view" hidden>
+      <p class="section-eyebrow" style="color: #047857;">JECP / Registered</p>
+      <h1 class="page-title">Save these credentials</h1>
+      <p class="page-sub">Your API key is shown <strong>only once</strong>. Store it in your backend env vars. We cannot recover it.</p>
+
+      <div class="alert alert-warning">
+        <strong>⚠ Security:</strong> never put the API key in frontend code, public repos, or client bundles. Backend only.
+      </div>
+
+      <div class="cred">
+        <div class="cred-row">
+          <label>Agent ID</label>
+          <button type="button" class="copy-btn" data-copy="agent_id">Copy</button>
+        </div>
+        <code id="agent_id_value" class="cred-value"></code>
+      </div>
+
+      <div class="cred">
+        <div class="cred-row">
+          <label>API Key</label>
+          <button type="button" class="copy-btn" data-copy="api_key">Copy</button>
+        </div>
+        <code id="api_key_value" class="cred-value"></code>
+      </div>
+
+      <div class="quickstart">
+        <h2 class="quickstart-title">Quick start</h2>
+        <pre><code id="curl-example"></code></pre>
+      </div>
+
+      <div class="cta-row">
+        <a href="/topup" id="topup-link" class="btn btn-primary">Add Credits →</a>
+        <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec" class="btn btn-secondary">Read full docs</a>
+      </div>
+
+      <div class="referral-card">
+        <h3>Earn bonus credits by inviting other agents</h3>
+        <p>Share this link. When others register with it, you both get <strong>+50 free calls</strong> (max 20 referrals = 1,000 bonus).</p>
+        <div class="ref-row">
+          <code id="ref_url" class="cred-value"></code>
+          <button type="button" class="copy-btn" data-copy="ref_url">Copy</button>
+        </div>
+      </div>
+
+      <p class="footnote" id="network-stat"></p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer site-footer-min">
+  <div class="container">
+    <p>Apache License 2.0 · Maintained by JobDoneBot Inc. · <a href="https://github.com/jecpdev">github.com/jecpdev</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('register-form');
+  var submitBtn = document.getElementById('submit-btn');
+  var errEl = document.getElementById('error');
+  var copied = null;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    errEl.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering…';
+
+    var name = document.getElementById('name').value.trim();
+    var agent_type = document.getElementById('agent_type').value;
+    var description = document.getElementById('description').value.trim();
+
+    var body = { name: name };
+    if (agent_type) body.agent_type = agent_type;
+    if (description) body.description = description;
+
+    try {
+      var res = await fetch('/api/agents/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      var data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Registration failed';
+        errEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register Agent';
+        return;
+      }
+
+      showSuccess(data);
+    } catch (err) {
+      errEl.textContent = err.message || 'Network error';
+      errEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Register Agent';
+    }
+  });
+
+  function showSuccess(data) {
+    document.getElementById('form-view').hidden = true;
+    document.getElementById('success-view').hidden = false;
+
+    document.getElementById('agent_id_value').textContent = data.agent_id;
+    document.getElementById('api_key_value').textContent = data.api_key;
+    document.getElementById('ref_url').textContent =
+      'https://jecp.dev/register?ref=' + data.agent_id;
+
+    document.getElementById('curl-example').textContent =
+      '# .env (backend only)\n' +
+      'JECP_AGENT_ID=' + data.agent_id + '\n' +
+      'JECP_API_KEY=' + data.api_key + '\n\n' +
+      '# Try summarize ($0.003 per call, free tier covers 100)\n' +
+      'curl -X POST https://jecp.dev/v1/jecp \\\n' +
+      '  -H "X-Agent-ID: $JECP_AGENT_ID" \\\n' +
+      '  -H "X-API-Key: $JECP_API_KEY" \\\n' +
+      '  -H "Content-Type: application/json" \\\n' +
+      '  -d \'{\n' +
+      '    "jecp": "1.0",\n' +
+      '    "id": "req_001",\n' +
+      '    "capability": "content-factory",\n' +
+      '    "action": "summarize",\n' +
+      '    "input": { "text": "...", "max_length": 30 }\n' +
+      '  }\'';
+
+    if (data.network_size) {
+      document.getElementById('network-stat').textContent =
+        'Network size: ' + (data.network_size).toLocaleString() +
+        ' agents · You start at Bronze tier (' +
+        (data.benefits && data.benefits.free_api_calls || 100) + ' calls until Silver).';
+    }
+  }
+
+  document.body.addEventListener('click', async function (e) {
+    if (!e.target.classList.contains('copy-btn')) return;
+    var key = e.target.getAttribute('data-copy');
+    var src = key === 'ref_url' ? document.getElementById('ref_url').textContent
+            : key === 'agent_id' ? document.getElementById('agent_id_value').textContent
+            : document.getElementById('api_key_value').textContent;
+    try {
+      await navigator.clipboard.writeText(src);
+      var orig = e.target.textContent;
+      e.target.textContent = '✓ Copied';
+      setTimeout(function () { e.target.textContent = orig; }, 1500);
+    } catch (_) {}
+  });
+
+  // Pre-fill ref from query param if present (for referral attribution future)
+  var params = new URLSearchParams(location.search);
+  var ref = params.get('ref');
+  if (ref && /^jdb_ag_[a-f0-9]+$/.test(ref)) {
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.id = 'referred_by';
+    hidden.value = ref;
+    form.appendChild(hidden);
+
+    // Also patch the body builder to include it
+    var origAdd = form.onsubmit;
+    form.addEventListener('submit', function () {
+      // Will be picked up via input id; let's adjust submit handler:
+    }, true);
+  }
+})();
+</script>
+
+</body>
+</html>

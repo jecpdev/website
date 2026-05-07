@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add credits — JECP</title>
+<meta name="description" content="Top up your JECP wallet via Stripe. Pay-as-you-go, no subscription.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#0f172a"/>
+        <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/#capabilities">Capabilities</a>
+      <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Spec</a>
+      <a href="https://github.com/jecpdev">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page page-narrow">
+  <div class="container container-narrow">
+    <p class="section-eyebrow">JECP / Wallet</p>
+    <h1 class="page-title">Add credits to your agent</h1>
+    <p class="page-sub">Pay once, your agent uses capabilities until balance runs out. One-time Stripe payment. No subscription.</p>
+
+    <section class="auth-box">
+      <h2>Authenticate your agent</h2>
+      <label class="field">
+        <span class="field-label">Agent ID</span>
+        <input type="text" id="agent_id" placeholder="jdb_ag_..." spellcheck="false" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="field-label">API Key</span>
+        <input type="password" id="api_key" placeholder="jdb_ak_..." spellcheck="false" autocomplete="off">
+      </label>
+      <p class="field-hint">No agent yet? <a href="/register">Register one</a>.</p>
+    </section>
+
+    <section class="amounts">
+      <h2>Choose amount</h2>
+      <div class="amounts-grid">
+        <button type="button" class="amount-card" data-amount="5">
+          <div class="amount-num">$5</div>
+          <div class="amount-sub">~ 1,000 calls @ $0.005</div>
+        </button>
+        <button type="button" class="amount-card amount-recommended" data-amount="20">
+          <span class="badge">Recommended</span>
+          <div class="amount-num">$20</div>
+          <div class="amount-sub">~ 4,000 calls</div>
+        </button>
+        <button type="button" class="amount-card" data-amount="100">
+          <div class="amount-num">$100</div>
+          <div class="amount-sub">~ 20,000 calls</div>
+        </button>
+      </div>
+
+      <div id="error" class="form-error" hidden></div>
+    </section>
+
+    <p class="footnote">
+      Payments processed by Stripe. Your wallet balance is denominated in USDC and used to pay for JECP capability execution.
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer site-footer-min">
+  <div class="container">
+    <p>Apache License 2.0 · Maintained by JobDoneBot Inc. · <a href="https://github.com/jecpdev">github.com/jecpdev</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var errEl = document.getElementById('error');
+  var aidEl = document.getElementById('agent_id');
+  var keyEl = document.getElementById('api_key');
+
+  // Pre-fill from query string (e.g. /topup?aid=...&key=... — useful for redirects)
+  var params = new URLSearchParams(location.search);
+  if (params.get('aid')) aidEl.value = params.get('aid');
+  if (params.get('key')) keyEl.value = params.get('key');
+
+  document.querySelectorAll('.amount-card').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      errEl.hidden = true;
+
+      var aid = aidEl.value.trim();
+      var key = keyEl.value.trim();
+      var amount = parseInt(btn.getAttribute('data-amount'), 10);
+
+      if (!aid.startsWith('jdb_ag_')) {
+        showError('Agent ID is required (starts with jdb_ag_)');
+        aidEl.focus();
+        return;
+      }
+      if (!key.startsWith('jdb_ak_')) {
+        showError('API Key is required (starts with jdb_ak_)');
+        keyEl.focus();
+        return;
+      }
+
+      btn.classList.add('busy');
+      btn.querySelector('.amount-num').textContent = 'Redirecting…';
+
+      try {
+        var res = await fetch('/api/agents/topup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Agent-ID': aid,
+            'X-API-Key': key,
+          },
+          body: JSON.stringify({ amount: amount }),
+        });
+        var data = await res.json();
+
+        if (!res.ok || !data.url) {
+          showError(data.error || 'Topup failed');
+          btn.classList.remove('busy');
+          btn.querySelector('.amount-num').textContent = '$' + amount;
+          return;
+        }
+
+        // Redirect to Stripe Checkout
+        location.href = data.url;
+      } catch (err) {
+        showError(err.message || 'Network error');
+        btn.classList.remove('busy');
+        btn.querySelector('.amount-num').textContent = '$' + amount;
+      }
+    });
+  });
+
+  function showError(msg) {
+    errEl.textContent = msg;
+    errEl.hidden = false;
+  }
+})();
+</script>
+
+</body>
+</html>

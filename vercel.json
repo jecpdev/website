@@ -35,7 +35,8 @@
     { "source": "/spec",   "destination": "https://github.com/jecpdev/jecp-spec/tree/main/spec", "permanent": false },
     { "source": "/source", "destination": "https://github.com/jecpdev/jecp-server", "permanent": false },
     { "source": "/github", "destination": "https://github.com/jecpdev", "permanent": false },
-    { "source": "/discord","destination": "https://github.com/jecpdev/jecp-spec/discussions", "permanent": false },
-    { "source": "/register","destination": "https://jecp.dev/api/agents/register", "permanent": false }
-  ]
+    { "source": "/discord","destination": "https://github.com/jecpdev/jecp-spec/discussions", "permanent": false }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
