@@ -86,7 +86,7 @@
       with pre-authorized budgets, tiered trust, and machine-readable error recovery.
     </p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="https://jobdonebot.com/agent/register">
+      <a class="btn btn-primary" href="https://jecp.dev/register">
         Get free 100 calls →
       </a>
       <a class="btn btn-secondary" href="https://github.com/jecpdev/jecp-spec/tree/main/spec">
@@ -136,7 +136,7 @@
         <div class="step-num">01</div>
         <h3>Register</h3>
         <p>Get an <code>agent_id</code> + <code>api_key</code> with 100 free calls.</p>
-        <pre><code>curl -X POST https://jobdonebot.com/api/agent/register \
+        <pre><code>curl -X POST https://jecp.dev/api/agents/register \
   -H "Content-Type: application/json" \
   -d '{"name":"My Agent","agent_type":"automation"}'</code></pre>
       </div>
@@ -144,7 +144,7 @@
         <div class="step-num">02</div>
         <h3>Execute</h3>
         <p>Call any of 25 actions. Get the artifact in 127ms.</p>
-        <pre><code>curl -X POST https://setsuna-jobdonebot.fly.dev/v1/jecp \
+        <pre><code>curl -X POST https://jecp.dev/v1/jecp \
   -H "X-Agent-ID: $AID" -H "X-API-Key: $KEY" \
   -d '{"jecp":"1.0","id":"req_001",
        "capability":"document-pipeline",
@@ -155,7 +155,7 @@
         <div class="step-num">03</div>
         <h3>Top up</h3>
         <p>When free runs out, pay $5 / $20 / $100. Balance never expires.</p>
-        <pre><code>curl -X POST https://jobdonebot.com/api/agent/topup \
+        <pre><code>curl -X POST https://jecp.dev/api/agents/topup \
   -H "X-Agent-ID: $AID" -H "X-API-Key: $KEY" \
   -d '{"amount":5}'
 # → Stripe Checkout URL</code></pre>
@@ -208,7 +208,7 @@
         <p class="cap-actions">7 actions</p>
       </div>
     </div>
-    <p class="cap-footnote">Live catalog: <a href="https://setsuna-jobdonebot.fly.dev/v1/capabilities">/v1/capabilities</a></p>
+    <p class="cap-footnote">Live catalog: <a href="https://jecp.dev/v1/capabilities">/v1/capabilities</a></p>
   </div>
 </section>
 
@@ -311,7 +311,7 @@
   <div class="container">
     <h2 class="cta-title">Built and verified in production.<br>Read the spec. Ship in 30 seconds.</h2>
     <div class="cta-buttons">
-      <a class="btn btn-primary btn-lg" href="https://jobdonebot.com/agent/register">Register your agent</a>
+      <a class="btn btn-primary btn-lg" href="https://jecp.dev/register">Register your agent</a>
       <a class="btn btn-secondary btn-lg" href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Read the spec</a>
       <a class="btn btn-ghost btn-lg" href="https://github.com/jecpdev/jecp-server">View source</a>
     </div>
@@ -340,10 +340,10 @@
     </div>
     <div class="foot-col">
       <h4>Resources</h4>
-      <a href="https://jobdonebot.com/.well-known/agent-guide.json">Agent Guide (JSON)</a>
-      <a href="https://jobdonebot.com/llms.txt">llms.txt</a>
-      <a href="https://setsuna-jobdonebot.fly.dev/v1/capabilities">Live capabilities</a>
-      <a href="https://setsuna-jobdonebot.fly.dev/health">Status</a>
+      <a href="https://jecp.dev/.well-known/agent-guide.json">Agent Guide (JSON)</a>
+      <a href="https://jecp.dev/llms.txt">llms.txt</a>
+      <a href="https://jecp.dev/v1/capabilities">Live capabilities</a>
+      <a href="https://jecp.dev/health">Status</a>
     </div>
     <div class="foot-col">
       <h4>Community</h4>
@@ -353,7 +353,7 @@
     </div>
   </div>
   <div class="container foot-bottom">
-    <p>Apache License 2.0 · Maintained by JobDoneBot Inc. · Reference impl: <a href="https://setsuna-jobdonebot.fly.dev">setsuna-jobdonebot.fly.dev</a></p>
+    <p>Apache License 2.0 · Maintained by JobDoneBot Inc. · Reference impl: <a href="https://github.com/jecpdev/jecp-server">jecpdev/jecp-server</a></p>
   </div>
 </footer>
 

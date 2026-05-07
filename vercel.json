@@ -17,9 +17,25 @@
       ]
     }
   ],
+  "rewrites": [
+    { "source": "/v1/jecp",                       "destination": "https://setsuna-jobdonebot.fly.dev/v1/jecp" },
+    { "source": "/v1/jecp/:path*",                "destination": "https://setsuna-jobdonebot.fly.dev/v1/jecp/:path*" },
+    { "source": "/v1/capabilities",               "destination": "https://setsuna-jobdonebot.fly.dev/v1/capabilities" },
+    { "source": "/v1/capabilities/:id",           "destination": "https://setsuna-jobdonebot.fly.dev/v1/capabilities/:id" },
+    { "source": "/health",                        "destination": "https://setsuna-jobdonebot.fly.dev/health" },
+    { "source": "/.well-known/agent-card.json",   "destination": "https://setsuna-jobdonebot.fly.dev/.well-known/agent.json" },
+    { "source": "/.well-known/agent-guide.json",  "destination": "https://jobdonebot.com/.well-known/agent-guide.json" },
+    { "source": "/llms.txt",                      "destination": "https://jobdonebot.com/llms.txt" },
+    { "source": "/api/agents/register",           "destination": "https://jobdonebot.com/api/agent/register" },
+    { "source": "/api/agents/topup",              "destination": "https://jobdonebot.com/api/agent/topup" },
+    { "source": "/api/agents/share-kit",          "destination": "https://jobdonebot.com/api/agent/share-kit" },
+    { "source": "/api/agents/network/:path*",     "destination": "https://jobdonebot.com/api/agent/network/:path*" }
+  ],
   "redirects": [
     { "source": "/spec",   "destination": "https://github.com/jecpdev/jecp-spec/tree/main/spec", "permanent": false },
     { "source": "/source", "destination": "https://github.com/jecpdev/jecp-server", "permanent": false },
-    { "source": "/github", "destination": "https://github.com/jecpdev", "permanent": false }
+    { "source": "/github", "destination": "https://github.com/jecpdev", "permanent": false },
+    { "source": "/discord","destination": "https://github.com/jecpdev/jecp-spec/discussions", "permanent": false },
+    { "source": "/register","destination": "https://jecp.dev/api/agents/register", "permanent": false }
   ]
 }
