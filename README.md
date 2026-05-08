@@ -5,7 +5,7 @@ Public website for the **Joint Execution Capability Protocol** (JECP).
 - Production: https://jecp.dev
 - Specification: https://github.com/jecpdev/jecp-spec
 - Reference server: https://github.com/jecpdev/jecp-server
-- Operator: JobDoneBot Inc.
+- Operator: Tufe Company Inc.
 
 ## Stack
 
