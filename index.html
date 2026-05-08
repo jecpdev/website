@@ -88,6 +88,14 @@
       <a class="btn btn-primary btn-lg" href="#paths">See both paths</a>
       <a class="btn btn-secondary btn-lg" href="https://github.com/jecpdev/jecp-spec">Read the spec</a>
     </div>
+    <div class="hero-install" style="margin:24px 0 8px;display:inline-flex;align-items:center;gap:12px;padding:10px 16px;background:#0f172a;color:#e2e8f0;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:14px">
+      <span style="color:#64748b;user-select:none">$</span>
+      <span>npm install <strong style="color:#06b6d4">@jecpdev/sdk</strong></span>
+      <a href="https://www.npmjs.com/package/@jecpdev/sdk" style="margin-left:8px;color:#94a3b8;font-size:12px;text-decoration:none">npm ↗</a>
+    </div>
+    <div style="font-size:13px;color:var(--slate-500);margin-bottom:24px">
+      Official TypeScript SDK · Apache 2.0 · works with Node, Bun, Cloudflare Workers, Next.js
+    </div>
     <div class="hero-stats">
       <div class="stat"><div class="stat-num">25</div><div class="stat-label">actions live</div></div>
       <div class="stat"><div class="stat-num">85%</div><div class="stat-label">to providers</div></div>
@@ -509,6 +517,26 @@ X-API-Key:  jdb_ak_xxxxxxxxxxxx
       That's it. Your agent now has its own wallet, its own API key, and operates autonomously
       under a budget you control. <strong>No human-card OAuth dance, no per-call credit-card-on-file.</strong>
     </p>
+
+    <div class="quickstart" style="margin-top:40px;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:24px 28px">
+      <div class="quickstart-title" style="color:#06b6d4;font-weight:700;margin-bottom:12px">TypeScript? Skip the curl. Use the SDK.</div>
+      <pre style="margin:0;background:transparent;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.6;overflow-x:auto"><code>npm install @jecpdev/sdk
+
+import { JecpClient } from '@jecpdev/sdk';
+
+const jecp = new JecpClient({ agentId, apiKey });
+
+const { output, billing, wallet_balance_after } = await jecp.invoke(
+  'jobdonebot/content-factory', 'translate',
+  { text: 'Hello', target_lang: 'JA' },
+  { mandate: { budget_usdc: 1.00 } }
+);</code></pre>
+      <div style="margin-top:14px;font-size:13px;color:#94a3b8">
+        Apache 2.0 · Node ≥18 · Bun · Cloudflare Workers · Next.js · 9 typed errors with <code style="background:#1e293b;padding:1px 5px;border-radius:3px">next_action</code> auto-recovery ·
+        <a href="https://www.npmjs.com/package/@jecpdev/sdk" style="color:#06b6d4;text-decoration:none">npm</a> ·
+        <a href="https://github.com/jecpdev/jecp-sdk-typescript" style="color:#06b6d4;text-decoration:none">GitHub</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -581,6 +609,28 @@ Stripe Transfer (automated payouts: Q3 2026).</pre>
         <p>Same path JobDoneBot uses. Same SLA, same auth, same revenue split.</p>
       </div>
 
+    </div>
+
+    <div class="quickstart" style="margin-top:40px;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:24px 28px">
+      <div class="quickstart-title" style="color:#06b6d4;font-weight:700;margin-bottom:12px">Provider endpoint, in 12 lines (TypeScript)</div>
+      <pre style="margin:0;background:transparent;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.6;overflow-x:auto"><code>import { JecpProvider } from '@jecpdev/sdk';
+
+const provider = new JecpProvider({
+  hmacSecret: process.env.JECP_HMAC_SECRET!,
+});
+
+// Works on Bun, Cloudflare Workers, Next.js Route Handlers...
+export const POST = provider.createHandler(async (req) =&gt; {
+  if (req.action === 'translate') {
+    return { translated: await myTranslate(req.input) };
+  }
+  throw new Error(`unknown action: ${req.action}`);
+});</code></pre>
+      <div style="margin-top:14px;font-size:13px;color:#94a3b8">
+        HMAC verification + ±5 min replay window built-in. Apache 2.0.
+        <a href="https://www.npmjs.com/package/@jecpdev/sdk" style="color:#06b6d4;text-decoration:none">npm</a> ·
+        <a href="https://github.com/jecpdev/jecp-sdk-typescript" style="color:#06b6d4;text-decoration:none">GitHub</a>
+      </div>
     </div>
   </div>
 </section>
