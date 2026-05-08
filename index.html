@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JECP — Agent Commerce Protocol</title>
-<meta name="description" content="Open protocol for AI agents to discover, execute, and pay for external services. Apache 2.0. Production since April 2026.">
-<meta name="keywords" content="agent commerce protocol, AI agent payment, JECP, MCP, agent infrastructure">
+<title>JECP — Joint Execution &amp; Commerce Protocol</title>
+<meta name="description" content="The open protocol for agent-to-service commerce. Earn revenue when your customer isn't human. Apache 2.0. Spec v1.0.">
+<meta name="keywords" content="agent commerce protocol, B2A, monetize AI agent API, agent payment, JECP, MCP payment, LLM agent billing">
 
 <!-- OGP -->
-<meta property="og:title" content="JECP — Agent Commerce Protocol">
-<meta property="og:description" content="Open protocol for AI agents to discover, execute, and pay for external services. Apache 2.0.">
+<meta property="og:title" content="JECP — Revenue, when your customer isn't human.">
+<meta property="og:description" content="The open protocol for agent-to-service commerce. Pre-authorized budgets. Tiered trust. Atomic settlement.">
 <meta property="og:url" content="https://jecp.dev">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JECP">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="JECP — Agent Commerce Protocol">
-<meta name="twitter:description" content="Open protocol for AI agent commerce. Mandate-safe budgets. 25 actions. Production-ready.">
+<meta name="twitter:title" content="JECP — Revenue, when your customer isn't human.">
+<meta name="twitter:description" content="The open Agent Commerce Protocol. Apache 2.0. Spec v1.0.">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,23 +25,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 
-<!-- JSON-LD structured data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "JECP",
-  "alternateName": "Joint Execution Capability Protocol",
-  "description": "Open protocol for AI agents to discover, execute, and pay for external services with built-in budget pre-authorization.",
+  "alternateName": "Joint Execution & Commerce Protocol",
+  "description": "Open protocol for agent-to-service commerce: discovery, execution, and per-call settlement with pre-authorized budgets.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Cross-platform",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD",
-    "description": "Free tier: 100 calls per agent. Pay-as-you-go: $0.003-$0.15 per call."
+    "description": "Free tier: 100 calls per agent. Pay-per-call: $0.001 to $0.15."
   },
-  "aggregateRating": null,
   "publisher": {
     "@type": "Organization",
     "name": "Tufe Company Inc.",
@@ -52,180 +50,171 @@
 </head>
 <body>
 
-<!-- ─── HEADER ─── -->
 <header class="site-header">
   <div class="container nav">
-    <a href="/" class="brand">
-      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <a class="brand" href="/">
+      <svg class="logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
         <rect width="32" height="32" rx="6" fill="#0f172a"/>
         <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
-      <span>JECP</span>
+      JECP
     </a>
     <nav class="nav-links">
-      <a href="#what">What</a>
-      <a href="#how">How</a>
-      <a href="#capabilities">Capabilities</a>
-      <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Spec</a>
-      <a href="https://github.com/jecpdev" aria-label="GitHub">GitHub</a>
+      <a href="#why">Why</a>
+      <a href="#how">How it works</a>
+      <a href="#case">JobDoneBot</a>
+      <a href="#provider">Become a Provider</a>
+      <a href="https://github.com/jecpdev/jecp-spec">Spec</a>
+      <a href="https://github.com/jecpdev">GitHub</a>
     </nav>
   </div>
 </header>
 
-<!-- ─── HERO ─── -->
+<!-- ─── 1. HERO ─── -->
 <section class="hero">
   <div class="container">
-    <div class="hero-eyebrow">
+    <span class="hero-eyebrow">
       <span class="dot"></span>
-      Production since April 2026 · Apache 2.0
-    </div>
-    <h1 class="hero-title">AI agents need a<br><em>settlement layer</em>.</h1>
+      Production since 2026-05 · Apache 2.0 · Spec v1.0
+    </span>
+    <h1 class="hero-title">Revenue, <em>when your customer isn't human.</em></h1>
     <p class="hero-sub">
-      JECP is the open <strong>Agent Commerce Protocol</strong>.
-      One standard for AI agents to discover, execute, and pay for external services —
-      with pre-authorized budgets, tiered trust, and machine-readable error recovery.
+      JECP is the open protocol for agent-to-service commerce.<br>
+      AI agents discover, execute, and pay for external services —
+      with pre-authorized budgets, tiered trust, and atomic settlement.
     </p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="/register">
-        Get free 100 calls →
-      </a>
-      <a class="btn btn-secondary" href="https://github.com/jecpdev/jecp-spec/tree/main/spec">
-        Read the spec
-      </a>
+      <a class="btn btn-primary btn-lg" href="https://github.com/jecpdev/jecp-spec">Read the spec</a>
+      <a class="btn btn-secondary btn-lg" href="#case">See how JobDoneBot uses it</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num">25</span><span class="stat-label">actions</span></div>
-      <div class="stat"><span class="stat-num">6</span><span class="stat-label">capabilities</span></div>
-      <div class="stat"><span class="stat-num">127ms</span><span class="stat-label">median latency</span></div>
-      <div class="stat"><span class="stat-num">$0.003</span><span class="stat-label">starting price</span></div>
+      <div class="stat"><div class="stat-num">25</div><div class="stat-label">actions live</div></div>
+      <div class="stat"><div class="stat-num">85%</div><div class="stat-label">to providers</div></div>
+      <div class="stat"><div class="stat-num">47</div><div class="stat-label">countries</div></div>
+      <div class="stat"><div class="stat-num">5 min</div><div class="stat-label">to ship</div></div>
     </div>
   </div>
 </section>
 
-<!-- ─── WHAT ─── -->
-<section id="what" class="section section-light">
+<!-- ─── 2. THE INVERSION ─── -->
+<section class="section section-light" id="why">
   <div class="container">
-    <p class="section-eyebrow">The problem</p>
-    <h2 class="section-title">AI agents are smart. They cannot transact.</h2>
-
+    <span class="section-eyebrow">The inversion</span>
+    <h2 class="section-title">Your business model assumes humans buy.</h2>
     <div class="problem-grid">
       <div class="problem-card">
-        <h3>For agent developers</h3>
-        <p>Want your agent to generate a PDF, process an image, or run a workflow? You integrate Stripe + Resend + Slack + 5 more APIs. Each with its own auth, billing, error format. <strong>1 feature = 1 week of work.</strong></p>
+        <h3>For 30 years</h3>
+        <p>Every revenue model on the internet was built for humans: forms, OAuth flows, checkout pages, monthly subscriptions.</p>
       </div>
       <div class="problem-card">
-        <h3>For service providers</h3>
-        <p>You have an API users would love. AI agents would integrate it — but each agent SDK (OpenAI, Anthropic, LangChain, LlamaIndex…) needs its own integration. <strong>The ROI doesn't justify it.</strong></p>
+        <h3>Then agents arrived</h3>
+        <p>They have intent. They have wallets. They cannot fill out checkout forms. Today, every API call from an agent is either unpaid (you eat the cost) or hardcoded to one provider (you skip discovery).</p>
       </div>
       <div class="problem-card">
-        <h3>For the ecosystem</h3>
-        <p>Autonomous agents need budget controls. None of the existing protocols (MCP, A2A) include payment authorization. <strong>Runaway agents drain wallets without warning.</strong></p>
+        <h3>JECP closes that gap</h3>
+        <p>The first open protocol that treats agents as economic actors. Discovery, capability execution, and per-call settlement — all in one envelope.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ─── HOW ─── -->
-<section id="how" class="section">
+<!-- ─── 3. HOW JECP WORKS ─── -->
+<section class="section" id="how">
   <div class="container">
-    <p class="section-eyebrow">30-second quickstart</p>
-    <h2 class="section-title">3 steps. No subscription. Apache 2.0.</h2>
-
+    <span class="section-eyebrow">How it works</span>
+    <h2 class="section-title">Three roles, one protocol.</h2>
     <div class="steps">
+
       <div class="step">
-        <div class="step-num">01</div>
-        <h3>Register</h3>
-        <p>Get an <code>agent_id</code> + <code>api_key</code> with 100 free calls.</p>
-        <pre><code>curl -X POST https://jecp.dev/api/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"My Agent","agent_type":"automation"}'</code></pre>
+        <div class="step-num">A</div>
+        <h3>Agent Developer</h3>
+        <p>Discover capabilities, invoke any provider, pay per call. No subscription, no OAuth dance.</p>
+        <pre><code># Invoke any active capability
+curl -X POST https://jecp.dev/v1/invoke \
+  -H "X-Agent-ID: $AID" \
+  -H "X-API-Key: $KEY" \
+  -d '{"jecp":"1.0","id":"r1",
+       "capability":"deepl/translate",
+       "action":"translate",
+       "input":{"text":"Hello","target_lang":"JA"}}'</code></pre>
       </div>
+
       <div class="step">
-        <div class="step-num">02</div>
-        <h3>Execute</h3>
-        <p>Call any of 25 actions. Get the artifact in 127ms.</p>
-        <pre><code>curl -X POST https://jecp.dev/v1/jecp \
-  -H "X-Agent-ID: $AID" -H "X-API-Key: $KEY" \
-  -d '{"jecp":"1.0","id":"req_001",
-       "capability":"document-pipeline",
-       "action":"generate-invoice",
-       "input":{...}}'</code></pre>
+        <div class="step-num">B</div>
+        <h3>Service Provider</h3>
+        <p>List your capabilities. Receive 85% of every successful call. Payouts in 47 countries.</p>
+        <pre><code># Register, then publish a manifest
+curl -X POST https://jecp.dev/v1/providers/register \
+  -d '{"namespace":"yourco",
+       "country":"US",
+       "owner_email":"...",
+       "endpoint_url":"https://yourco.com/jecp"}'
+
+# DNS verify, Stripe Connect, publish manifest
+# 5 min total. See "Become a Provider" below.</code></pre>
       </div>
+
       <div class="step">
-        <div class="step-num">03</div>
-        <h3>Top up</h3>
-        <p>When free runs out, pay $5 / $20 / $100. Balance never expires.</p>
-        <pre><code>curl -X POST https://jecp.dev/api/agents/topup \
-  -H "X-Agent-ID: $AID" -H "X-API-Key: $KEY" \
-  -d '{"amount":5}'
-# → Stripe Checkout URL</code></pre>
+        <div class="step-num">C</div>
+        <h3>Spec Contributor</h3>
+        <p>The protocol is Apache 2.0, RFC 2119 compliant, JSON Schema 2020-12. Read, fork, propose.</p>
+        <pre><code># Read or fork the spec
+git clone https://github.com/jecpdev/jecp-spec
+cd jecp-spec/spec
+
+# Spec sections:
+#   00-overview      04-manifest
+#   01-protocol      05-discovery
+#   02-authentication
+#   03-errors</code></pre>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- ─── CAPABILITIES ─── -->
-<section id="capabilities" class="section section-light">
+<!-- ─── 4. THE TWO WORLDS ─── -->
+<section class="section section-light">
   <div class="container">
-    <p class="section-eyebrow">What you can do</p>
-    <h2 class="section-title">6 capabilities · 25 actions · pay per call</h2>
-
-    <div class="cap-grid">
-      <div class="cap-card">
-        <h3>document-pipeline</h3>
-        <p class="cap-price">$0.003 – $0.02</p>
-        <p>Generate professional PDFs: invoices, quotes, receipts, contracts, reports.</p>
-        <p class="cap-actions">5 actions</p>
-      </div>
-      <div class="cap-card">
-        <h3>file-chain</h3>
-        <p class="cap-price">$0.005 – $0.05</p>
-        <p>Image processing (9 ops), PDF merge/split/compress, batch conversion.</p>
-        <p class="cap-actions">3 actions</p>
-      </div>
-      <div class="cap-card">
-        <h3>content-factory</h3>
-        <p class="cap-price">$0.003 – $0.02</p>
-        <p>Generate blogs, SNS posts, translations, summaries, rewrites via Claude.</p>
-        <p class="cap-actions">5 actions</p>
-      </div>
-      <div class="cap-card">
-        <h3>data-insight</h3>
-        <p class="cap-price">$0.005 – $0.02</p>
-        <p>Analyze CSV / JSON, generate time-series forecasts with confidence intervals.</p>
-        <p class="cap-actions">3 actions</p>
-      </div>
-      <div class="cap-card">
-        <h3>workflow</h3>
-        <p class="cap-price">$0.01 – $0.05</p>
-        <p>Multi-step chains: invoice→email, content→SNS, analysis→report→mail.</p>
-        <p class="cap-actions">3 actions</p>
-      </div>
-      <div class="cap-card">
-        <h3>sns-engine</h3>
-        <p class="cap-price">$0.02 – $0.15</p>
-        <p>Automate X / TikTok / Instagram / YouTube. A/B test, autopilot, analytics.</p>
-        <p class="cap-actions">7 actions</p>
-      </div>
-    </div>
-    <p class="cap-footnote">Live catalog: <a href="https://jecp.dev/v1/capabilities">/v1/capabilities</a></p>
-  </div>
-</section>
-
-<!-- ─── WHY ─── -->
-<section class="section">
-  <div class="container">
-    <p class="section-eyebrow">Why JECP wins</p>
-    <h2 class="section-title">The only protocol with all of these.</h2>
-
+    <span class="section-eyebrow">The economic inversion</span>
+    <h2 class="section-title">Two worlds, one protocol layer.</h2>
     <div class="comparison">
       <table>
         <thead>
           <tr>
-            <th>Feature</th>
+            <th></th>
+            <th>Old world (human commerce)</th>
+            <th>New world (agent commerce)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Customer</td><td>Human user</td><td>AI agent (24/7, scales infinitely)</td></tr>
+          <tr><td>Discovery</td><td>SEO, ads, content</td><td>manifest discovery + capability resolve</td></tr>
+          <tr><td>Authentication</td><td>OAuth, sessions</td><td>API key + wallet</td></tr>
+          <tr><td>Settlement</td><td>Card / subscription</td><td>Per-call wallet deduct</td></tr>
+          <tr><td>Cost of acquisition</td><td>High (CAC ~ $50-500)</td><td class="hl">Near zero (CAC ≈ $0)</td></tr>
+          <tr><td>LTV ceiling</td><td>Bounded by human churn</td><td class="hl">Bounded by agent count × calls</td></tr>
+          <tr><td>Scaling</td><td>Linear</td><td class="hl">Non-linear, per-API</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cap-footnote">Most providers have no system for the right column. JECP is that system.</p>
+  </div>
+</section>
+
+<!-- ─── 5. WHY JECP WINS ─── -->
+<section class="section">
+  <div class="container">
+    <span class="section-eyebrow">Why JECP</span>
+    <h2 class="section-title">What other tools do, and what only JECP does.</h2>
+    <div class="comparison">
+      <table>
+        <thead>
+          <tr>
+            <th>Capability</th>
             <th>MCP</th>
             <th>LangChain</th>
-            <th>Stripe</th>
+            <th>Stripe Connect</th>
             <th>OpenAI Agents</th>
             <th class="hl">JECP</th>
           </tr>
@@ -234,126 +223,290 @@
           <tr><td>Tool discovery</td><td>✓</td><td>✓</td><td>—</td><td>✓</td><td class="hl">✓</td></tr>
           <tr><td>Binary artifacts</td><td>△</td><td>△</td><td>—</td><td>△</td><td class="hl">✓</td></tr>
           <tr><td>Multi-step workflow</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td class="hl">✓</td></tr>
-          <tr><td><strong>Budget pre-auth (Mandate)</strong></td><td>—</td><td>—</td><td>△</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td><strong>Tiered trust gate</strong></td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td>Open spec (Apache 2.0)</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td><strong>Built-in billing</strong></td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td>Machine-readable errors</td><td>△</td><td>—</td><td>✓</td><td>△</td><td class="hl">✓</td></tr>
+          <tr><td>Pre-auth budgets (Mandate)</td><td>—</td><td>—</td><td>△</td><td>—</td><td class="hl">✓</td></tr>
+          <tr><td>Tiered trust (Trust Gate)</td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
+          <tr><td>Per-call billing</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
+          <tr><td>Multi-vendor by design</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
+          <tr><td>Open spec (RFC 2119)</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="cap-footnote" style="margin-top:24px">
+      <strong>Mandate</strong> — pre-authorized budget caps, auto-stop on overrun (Spec §4) ·
+      <strong>Trust Gate</strong> — Bronze→Silver→Gold→Platinum, per-action gates (Spec §5) ·
+      <strong>Per-call billing</strong> — atomic deduct + 85/10/5 split, no subscription required.
+    </p>
+  </div>
+</section>
 
-    <div class="why-grid">
-      <div class="why-card">
-        <h3>Mandate</h3>
-        <p>Pre-authorize a budget per call. The hub auto-rejects overruns. Stops runaway agents from draining wallets.</p>
+<!-- ─── 6. REFERENCE IMPLEMENTATION ─── -->
+<section class="section section-light" id="case">
+  <div class="container">
+    <span class="section-eyebrow">Reference implementation</span>
+    <h2 class="section-title">How JobDoneBot uses JECP.</h2>
+    <p class="hero-sub" style="margin-bottom:32px">
+      JobDoneBot is a SaaS by Tufe Company — the same author of the protocol —
+      with 25 actions across 6 capabilities. Every call from every agent flows
+      through the same code path any third-party would use.
+    </p>
+
+    <div class="cap-grid">
+      <div class="cap-card">
+        <h3>document-pipeline</h3>
+        <div class="cap-price">$0.003 – $0.02</div>
+        <p>Generate professional PDFs: invoices, quotes, receipts, contracts, reports.</p>
+        <div class="cap-actions">5 actions</div>
       </div>
-      <div class="why-card">
-        <h3>Trust Gate</h3>
-        <p>Bronze → Silver → Gold → Platinum. Higher tiers unlock more capabilities and rate limits. Earned by paid usage.</p>
+      <div class="cap-card">
+        <h3>file-chain</h3>
+        <div class="cap-price">$0.005 – $0.01</div>
+        <p>Image processing, PDF merge/split/compress, batch conversion across formats.</p>
+        <div class="cap-actions">3 actions</div>
       </div>
-      <div class="why-card">
-        <h3>next_action</h3>
-        <p>Every error response includes a machine-readable recovery step. Agents auto-recover without human help.</p>
+      <div class="cap-card">
+        <h3>content-factory</h3>
+        <div class="cap-price">$0.003 – $0.02</div>
+        <p>Generate blogs, SNS posts, translations, summaries, rewrites via Claude.</p>
+        <div class="cap-actions">5 actions</div>
       </div>
-      <div class="why-card">
-        <h3>Open spec</h3>
-        <p>Apache 2.0. Anyone can run their own JECP server. The protocol is independent of any single vendor.</p>
+      <div class="cap-card">
+        <h3>data-insight</h3>
+        <div class="cap-price">$0.005 – $0.02</div>
+        <p>Analyze CSV / JSON, generate time-series forecasts with confidence intervals.</p>
+        <div class="cap-actions">3 actions</div>
       </div>
+      <div class="cap-card">
+        <h3>workflow</h3>
+        <div class="cap-price">$0.01 – $0.05</div>
+        <p>Multi-step chains: invoice→email, content→SNS, analysis→report→mail.</p>
+        <div class="cap-actions">3 actions</div>
+      </div>
+      <div class="cap-card">
+        <h3>sns-engine</h3>
+        <div class="cap-price">$0.02 – $0.15</div>
+        <p>Automate X / TikTok / Instagram. A/B test, autopilot, engagement analytics.</p>
+        <div class="cap-actions">6 actions</div>
+      </div>
+    </div>
+
+    <div class="quickstart" style="margin-top:40px">
+      <div class="quickstart-title">Money flow on every call</div>
+<pre>Agent  ─────►  JECP Hub  ─────►  JobDoneBot Provider
+                  │
+                  ├─  deduct wallet      ($0.005)
+                  ├─  split revenue
+                  │     ├─ Provider     $0.00425   (85%)
+                  │     ├─ Hub fee      $0.00050   (10%)
+                  │     └─ Payment fee  $0.00025   (5%)
+                  └─  Stripe transfer (monthly to Provider)</pre>
+    </div>
+
+    <p class="cap-footnote">
+      Tufe Company earns 85% as a Provider plus 10% as the Hub operator.
+      This is dogfeeding by the protocol author — the same path is open to you.
+    </p>
+    <p class="cap-footnote">
+      <a href="https://jecp.dev/v1/capabilities">→ See live catalog</a>
+    </p>
+  </div>
+</section>
+
+<!-- ─── 7. BECOME A PROVIDER ─── -->
+<section class="section" id="provider">
+  <div class="container">
+    <span class="section-eyebrow">Build your own</span>
+    <h2 class="section-title">Ship to agents in 5 minutes.</h2>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Register</h3>
+        <pre><code>POST /v1/providers/register
+{
+  "namespace": "yourco",
+  "display_name": "Your Co",
+  "country": "US",
+  "owner_email": "founder@yourco.com",
+  "endpoint_url": "https://yourco.com/jecp"
+}</code></pre>
+        <p>Receive provider_api_key + hmac_secret (shown once).</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>DNS verify</h3>
+        <pre><code>TXT _jecp.yourco.com
+"jecp-verify=&lt;token&gt;"
+
+POST /v1/providers/verify-dns
+Authorization: Bearer jdb_pk_...
+{ "domain": "yourco.com" }</code></pre>
+        <p>Proves you own the endpoint domain.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Stripe Connect</h3>
+        <pre><code>POST /v1/providers/connect-stripe
+Authorization: Bearer jdb_pk_...
+→ onboarding_url</code></pre>
+        <p>5-minute onboarding via Stripe Express. 47 countries supported.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Publish manifest</h3>
+        <pre><code>POST /v1/manifests
+Authorization: Bearer jdb_pk_...
+Content-Type: application/x-yaml
+
+namespace: yourco
+capability: translate
+version: 1.0.0
+endpoint: https://yourco.com/jecp
+actions: [...]</code></pre>
+        <p>Active immediately if DNS + Stripe verified.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <h3>Earn</h3>
+<pre>Agent invokes  ──►  you receive 85%
+                ──►  hub keeps 10%
+                ──►  payment 5%
+
+Monthly Stripe Transfer to your bank.
+Track in real-time at the Provider Console.</pre>
+        <p>Same path JobDoneBot uses. Same SLA, same auth, same payouts.</p>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ─── PRICING ─── -->
-<section class="section section-dark">
+<!-- ─── 8. PRICING ─── -->
+<section class="section section-light">
   <div class="container">
-    <p class="section-eyebrow">Pricing</p>
-    <h2 class="section-title section-title-light">Pay only for what you use.</h2>
+    <span class="section-eyebrow">Pricing for agents</span>
+    <h2 class="section-title">Pay only for what you use.</h2>
+    <div class="cap-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
 
-    <div class="pricing-grid">
-      <div class="price-card">
+      <div class="cap-card">
         <h3>Free</h3>
-        <div class="price-amount">$0</div>
-        <p class="price-detail">100 calls per registered agent</p>
-        <ul>
-          <li>Try every capability</li>
-          <li>No credit card required</li>
-          <li>No expiration</li>
-        </ul>
+        <div class="cap-price">$0</div>
+        <p>100 calls per registered agent. Try every capability. No credit card required.</p>
       </div>
-      <div class="price-card price-featured">
-        <div class="badge">Recommended</div>
-        <h3>Top up $20</h3>
-        <div class="price-amount">$20</div>
-        <p class="price-detail">~ 4,000 calls @ $0.005</p>
-        <ul>
-          <li>One-time payment via Stripe</li>
-          <li>Balance never expires</li>
-          <li>No subscription</li>
-        </ul>
+
+      <div class="cap-card">
+        <h3>Top up $5</h3>
+        <div class="cap-price">$5</div>
+        <p>~1,000 calls @ $0.005. One-time payment. Balance never expires.</p>
       </div>
-      <div class="price-card">
+
+      <div class="cap-card" style="border:2px solid var(--slate-900)">
+        <h3>Top up $20 <span style="font-size:11px;background:var(--slate-900);color:#fff;padding:3px 8px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-left:6px">Recommended</span></h3>
+        <div class="cap-price">$20</div>
+        <p>~4,000 calls. Stripe one-time payment. No subscription.</p>
+      </div>
+
+      <div class="cap-card">
         <h3>Top up $100</h3>
-        <div class="price-amount">$100</div>
-        <p class="price-detail">~ 20,000 calls</p>
-        <ul>
-          <li>Best for high-volume agents</li>
-          <li>Same pay-per-call pricing</li>
-          <li>Bulk discount via Provider revenue share (Stage 3)</li>
-        </ul>
+        <div class="cap-price">$100</div>
+        <p>~20,000 calls. Best for high-volume agents. Same per-call pricing.</p>
+      </div>
+
+    </div>
+    <p class="cap-footnote">No subscription. Pay-per-call. Balance never expires. Refunds on disputed transactions.</p>
+  </div>
+</section>
+
+<!-- ─── 9. SPEC & STANDARDS TRACK ─── -->
+<section class="section" id="spec">
+  <div class="container">
+    <span class="section-eyebrow">Spec-grade by design</span>
+    <h2 class="section-title">Built to outlast any single vendor.</h2>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <h3>Standards</h3>
+        <p>Apache 2.0 license · RFC 2119 keywords · JSON Schema 2020-12 · spec v1.0-draft.</p>
+      </div>
+      <div class="problem-card">
+        <h3>Reference impl</h3>
+        <p>Rust + Axum + SQLx + Tokio. Open source. Production since May 2026.</p>
+      </div>
+      <div class="problem-card">
+        <h3>Settlement</h3>
+        <p>Stripe Connect Express across 47 countries. HMAC-SHA256 with replay window. Idempotent per (agent_id, request_id) for 24h.</p>
       </div>
     </div>
+
+    <div class="quickstart" style="margin-top:40px">
+      <div class="quickstart-title">Standards track (planned)</div>
+<pre>Q3 2026     IETF Internet-Draft  draft-jecp-agent-commerce-00
+Q4 2026     arXiv preprint
+Q1 2027     BoF session at IETF 122
+
+Backed by 100% open spec. No vendor lock-in by design.</pre>
+    </div>
+
+    <div class="hero-cta" style="margin-top:40px">
+      <a class="btn btn-primary" href="https://github.com/jecpdev/jecp-spec">Read the spec</a>
+      <a class="btn btn-secondary" href="https://github.com/jecpdev/jecp-server">Reference impl</a>
+      <a class="btn btn-ghost" href="https://github.com/jecpdev/jecp-spec/discussions">Contribute</a>
+    </div>
   </div>
 </section>
 
-<!-- ─── GET STARTED ─── -->
-<section class="section section-cta">
+<!-- ─── 10. FOOTER ─── -->
+<footer class="site-footer-min">
   <div class="container">
-    <h2 class="cta-title">Built and verified in production.<br>Read the spec. Ship in 30 seconds.</h2>
-    <div class="cta-buttons">
-      <a class="btn btn-primary btn-lg" href="/register">Register your agent</a>
-      <a class="btn btn-secondary btn-lg" href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Read the spec</a>
-      <a class="btn btn-ghost btn-lg" href="https://github.com/jecpdev/jecp-server">View source</a>
-    </div>
-  </div>
-</section>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;padding:48px 0 32px">
 
-<!-- ─── FOOTER ─── -->
-<footer class="site-footer">
-  <div class="container footer-grid">
-    <div class="foot-col">
-      <a href="/" class="brand">
-        <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <rect width="32" height="32" rx="6" fill="#0f172a"/>
-          <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-        <span>JECP</span>
-      </a>
-      <p class="foot-tag">Joint Execution Capability Protocol.<br>The open Agent Commerce Protocol.</p>
+      <div>
+        <div style="font-weight:800;font-size:18px;margin-bottom:12px">JECP</div>
+        <p style="font-size:13px;color:var(--slate-500);line-height:1.6">
+          Joint Execution &amp; Commerce Protocol.<br>
+          The open protocol for agent-to-service commerce.
+        </p>
+      </div>
+
+      <div>
+        <h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate-500);margin:0 0 12px">Resources</h4>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-spec">Spec</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-server">Reference impl</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/.well-known/agent-guide.json">Agent Guide (JSON)</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/llms.txt">llms.txt</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/v1/capabilities">Live catalog</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/health">Status</a>
+      </div>
+
+      <div>
+        <h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate-500);margin:0 0 12px">Community</h4>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev">GitHub Org</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-spec/discussions">Discussions</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="mailto:hello@jecp.dev">hello@jecp.dev</a>
+      </div>
+
+      <div>
+        <h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate-500);margin:0 0 12px">Standards</h4>
+        <p style="font-size:13px;color:var(--slate-700);margin:0 0 6px">Apache 2.0</p>
+        <p style="font-size:13px;color:var(--slate-700);margin:0 0 6px">RFC 2119</p>
+        <p style="font-size:13px;color:var(--slate-700);margin:0 0 6px">JSON Schema 2020-12</p>
+        <p style="font-size:13px;color:var(--slate-700);margin:0 0 6px">IETF (planned Q3 2026)</p>
+      </div>
+
     </div>
-    <div class="foot-col">
-      <h4>Specification</h4>
-      <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/00-overview.md">Overview</a>
-      <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/01-protocol.md">Wire Format</a>
-      <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/02-authentication.md">Authentication</a>
-      <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-manifest.md">Manifest</a>
+
+    <div style="border-top:1px solid var(--slate-200);padding:24px 0;font-size:12px;color:var(--slate-500);line-height:1.7">
+      <p style="margin:0 0 8px">
+        Originally coined as "JobDoneBot Execution Capability Protocol" (May 2026).
+        Renamed to "Joint Execution &amp; Commerce Protocol" upon transition to a multi-vendor standard track.
+      </p>
+      <p style="margin:0">
+        Apache License 2.0 · Maintained by Tufe Company Inc. · <a href="https://github.com/jecpdev/jecp-server" style="color:var(--slate-700)">jecpdev/jecp-server</a>
+      </p>
     </div>
-    <div class="foot-col">
-      <h4>Resources</h4>
-      <a href="https://jecp.dev/.well-known/agent-guide.json">Agent Guide (JSON)</a>
-      <a href="https://jecp.dev/llms.txt">llms.txt</a>
-      <a href="https://jecp.dev/v1/capabilities">Live capabilities</a>
-      <a href="https://jecp.dev/health">Status</a>
-    </div>
-    <div class="foot-col">
-      <h4>Community</h4>
-      <a href="https://github.com/jecpdev">GitHub Org</a>
-      <a href="https://github.com/jecpdev/jecp-spec/discussions">Discussions</a>
-      <a href="mailto:hello@jecp.dev">hello@jecp.dev</a>
-    </div>
-  </div>
-  <div class="container foot-bottom">
-    <p>Apache License 2.0 · Maintained by Tufe Company Inc. · Reference impl: <a href="https://github.com/jecpdev/jecp-server">jecpdev/jecp-server</a></p>
   </div>
 </footer>
 
