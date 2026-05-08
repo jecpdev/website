@@ -61,9 +61,10 @@
     </a>
     <nav class="nav-links">
       <a href="#why">Why</a>
-      <a href="#how">How it works</a>
+      <a href="#beyond">Beyond payment</a>
+      <a href="#how">How</a>
       <a href="#case">JobDoneBot</a>
-      <a href="#provider">Become a Provider</a>
+      <a href="#provider">Build</a>
       <a href="https://github.com/jecpdev/jecp-spec">Spec</a>
       <a href="https://github.com/jecpdev">GitHub</a>
     </nav>
@@ -118,8 +119,69 @@
   </div>
 </section>
 
+<!-- ─── 2.5 BEYOND PAYMENT ─── -->
+<section class="section" id="beyond">
+  <div class="container">
+    <span class="section-eyebrow">More than a payment rail</span>
+    <h2 class="section-title">Payment is one layer. Safety, orchestration, and portability are the others.</h2>
+    <div class="problem-grid">
+
+      <div class="problem-card">
+        <h3>Mandate — Cap your agent's spend</h3>
+        <p>Pre-authorize a budget before invocation. Auto-stop on overrun. The first protocol-level safeguard against runaway agents that drain wallets. <strong>Spec §4.</strong></p>
+        <pre style="background:#fff;border:1px solid var(--slate-200);border-radius:6px;padding:12px;font-size:12px;margin-top:12px;overflow-x:auto"><code>"mandate": {
+  "agent_id": "...",
+  "budget_usdc": 5.00,
+  "expires_at": "2026-06-01T00:00:00Z"
+}</code></pre>
+      </div>
+
+      <div class="problem-card">
+        <h3>Trust Gate — Tier capabilities by trust</h3>
+        <p>Bronze agents do basic translations. Platinum agents do file uploads, transactions, sensitive ops. Trust is earned by verifiable history, not flags. <strong>Spec §5.</strong></p>
+        <pre style="background:#fff;border:1px solid var(--slate-200);border-radius:6px;padding:12px;font-size:12px;margin-top:12px;overflow-x:auto"><code># manifest action
+trust_tier_required: silver
+# Bronze agents get 403
+# Silver+ proceed</code></pre>
+      </div>
+
+      <div class="problem-card">
+        <h3>Multi-step workflows — One call, atomic commit</h3>
+        <p>"Generate invoice, then email it" runs as one transaction with a single envelope, full audit trail, and idempotency on retry. No glue code, no orchestration layer.</p>
+        <pre style="background:#fff;border:1px solid var(--slate-200);border-radius:6px;padding:12px;font-size:12px;margin-top:12px;overflow-x:auto"><code>"capability":"jobdonebot/workflow",
+"action":"invoice-and-notify"
+# = generate-invoice + email-send
+# under one mandate, one charge</code></pre>
+      </div>
+
+      <div class="problem-card">
+        <h3>Multi-vendor — Switch providers without rewrite</h3>
+        <p>DeepL today, your in-house model tomorrow, OpenAI on weekends — same JSON envelope, same contract. Agents discover via manifest. No vendor lock-in by design.</p>
+        <pre style="background:#fff;border:1px solid var(--slate-200);border-radius:6px;padding:12px;font-size:12px;margin-top:12px;overflow-x:auto"><code>"capability":"deepl/translate"
+# swap to:
+"capability":"yourco/translate"
+# Identical protocol contract.</code></pre>
+      </div>
+
+      <div class="problem-card">
+        <h3>Binary artifacts — Files, not just JSON</h3>
+        <p>PDFs, images, audio, datasets — return them as first-class artifacts with content-type, size, and signed URLs. Agents handle them like any tool output.</p>
+      </div>
+
+      <div class="problem-card">
+        <h3>next_action — Machine-readable recovery</h3>
+        <p>When something fails, errors include a structured <code>next_action</code> field telling the agent exactly what to do: retry, top up, request mandate, or escalate. No string-matching error codes.</p>
+      </div>
+
+    </div>
+    <p class="cap-footnote" style="margin-top:32px;text-align:center;font-style:italic">
+      JECP is to agents what HTTP was to browsers — a single envelope, multiple concerns, no vendor lock-in.
+    </p>
+  </div>
+</section>
+
 <!-- ─── 3. HOW JECP WORKS ─── -->
-<section class="section" id="how">
+<section class="section section-light" id="how">
   <div class="container">
     <span class="section-eyebrow">How it works</span>
     <h2 class="section-title">Three roles, one protocol.</h2>
@@ -375,9 +437,9 @@ actions: [...]</code></pre>
                 ──►  hub keeps 10%
                 ──►  payment 5%
 
-Monthly Stripe Transfer to your bank.
-Track in real-time at the Provider Console.</pre>
-        <p>Same path JobDoneBot uses. Same SLA, same auth, same payouts.</p>
+Revenue allocated atomically per call.
+Stripe Transfer (automated payouts: Q3 2026).</pre>
+        <p>Same path JobDoneBot uses. Same SLA, same auth, same revenue split.</p>
       </div>
 
     </div>
@@ -416,7 +478,7 @@ Track in real-time at the Provider Console.</pre>
       </div>
 
     </div>
-    <p class="cap-footnote">No subscription. Pay-per-call. Balance never expires. Refunds on disputed transactions.</p>
+    <p class="cap-footnote">No subscription. Pay-per-call. Balance never expires.</p>
   </div>
 </section>
 
