@@ -123,8 +123,27 @@
 <section class="section" id="beyond">
   <div class="container">
     <span class="section-eyebrow">More than a payment rail</span>
-    <h2 class="section-title">Payment is one layer. Safety, orchestration, and portability are the others.</h2>
+    <h2 class="section-title">Give your agent economic identity.</h2>
+    <p class="hero-sub" style="margin-bottom:32px">
+      Until now, agents borrowed your API key. With JECP, an agent has its own wallet,
+      its own budget, its own trust history. Payment is one layer. Identity, safety,
+      orchestration, and portability are the others.
+    </p>
     <div class="problem-grid">
+
+      <div class="problem-card">
+        <h3>Wallets — Agents hold their own balance</h3>
+        <p>Each agent has a USDC wallet, separate from any human's card.
+        Top up $5, $20, or $100 via Stripe Checkout. Balance never expires.
+        Charge atomically per call. The agent is the economic actor — not its operator.</p>
+        <pre style="background:#fff;border:1px solid var(--slate-200);border-radius:6px;padding:12px;font-size:12px;margin-top:12px;overflow-x:auto"><code># Agent has wallet, like a Stripe customer
+POST /v1/agents/topup
+{ "amount": 20 }
+→ Stripe Checkout URL → balance += $20
+
+# Every call atomically debits agent's wallet
+balance_after = balance_before - cost</code></pre>
+      </div>
 
       <div class="problem-card">
         <h3>Mandate — Cap your agent's spend</h3>
@@ -190,7 +209,7 @@ trust_tier_required: silver
       <div class="step">
         <div class="step-num">A</div>
         <h3>Agent Developer</h3>
-        <p>Discover capabilities, invoke any provider, pay per call. No subscription, no OAuth dance.</p>
+        <p>Give your agent its own wallet. Discover capabilities, invoke any provider, pay per call. No subscription, no OAuth dance.</p>
         <pre><code># Invoke any active capability
 curl -X POST https://jecp.dev/v1/invoke \
   -H "X-Agent-ID: $AID" \
