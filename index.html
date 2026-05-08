@@ -62,9 +62,9 @@
     <nav class="nav-links">
       <a href="#why">Why</a>
       <a href="#beyond">Beyond payment</a>
-      <a href="#how">How</a>
+      <a href="#agent-wallet">Agent</a>
+      <a href="#provider">Provider</a>
       <a href="#case">JobDoneBot</a>
-      <a href="#provider">Build</a>
       <a href="https://github.com/jecpdev/jecp-spec">Spec</a>
       <a href="https://github.com/jecpdev">GitHub</a>
     </nav>
@@ -392,10 +392,84 @@ cd jecp-spec/spec
   </div>
 </section>
 
-<!-- ─── 7. BECOME A PROVIDER ─── -->
-<section class="section" id="provider">
+<!-- ─── 6.5 GIVE YOUR AGENT A WALLET ─── -->
+<section class="section" id="agent-wallet">
   <div class="container">
-    <span class="section-eyebrow">Build your own</span>
+    <span class="section-eyebrow">For agent developers</span>
+    <h2 class="section-title">Give your agent a wallet in 3 steps.</h2>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Register the agent</h3>
+        <pre><code>POST https://jecp.dev/api/agents/register
+{
+  "name": "MyResearchAgent",
+  "agent_type": "research",
+  "description": "Reads docs and writes summaries"
+}
+
+← {
+  "agent_id": "jdb_ag_a1b2c3...",
+  "api_key": "jdb_ak_xxxxxxxxxxxx",
+  "free_calls_remaining": 100
+}</code></pre>
+        <p>One call. agent_id + api_key are yours forever. 100 free calls included.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Top up the wallet</h3>
+        <pre><code>POST https://jecp.dev/api/agents/topup
+X-Agent-ID: jdb_ag_a1b2c3...
+X-API-Key:  jdb_ak_xxxxxxxxxxxx
+
+{ "amount": 20 }    # one of: 5, 20, 100
+
+← { "url": "https://checkout.stripe.com/..." }
+# Open URL → pay via Stripe → wallet credited.</code></pre>
+        <p>Stripe Checkout (one-time). Balance never expires. Webhook credits the wallet on payment success.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Invoke — wallet auto-debits</h3>
+        <pre><code>POST https://jecp.dev/v1/invoke
+X-Agent-ID: jdb_ag_a1b2c3...
+X-API-Key:  jdb_ak_xxxxxxxxxxxx
+
+{
+  "jecp": "1.0",
+  "id": "req-001",
+  "capability": "deepl/translate",
+  "action": "translate",
+  "input": {"text":"Hello","target_lang":"JA"},
+
+  "mandate": {                 # optional safety
+    "agent_id": "jdb_ag_a1b2c3...",
+    "api_key":  "jdb_ak_xxxxxxxxxxxx",
+    "budget_usdc": 1.00,
+    "expires_at": "2026-06-01T00:00:00Z"
+  }
+}
+
+← { "status":"success",
+    "billing": { "charged":true, "balance_after": 19.995 } }</code></pre>
+        <p>Per-call atomic debit. Wrap with mandate to cap total spend across calls.</p>
+      </div>
+
+    </div>
+    <p class="cap-footnote" style="margin-top:24px">
+      That's it. Your agent now has its own wallet, its own API key, and operates autonomously
+      under a budget you control. <strong>No human-card OAuth dance, no per-call credit-card-on-file.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ─── 7. BECOME A PROVIDER ─── -->
+<section class="section section-light" id="provider">
+  <div class="container">
+    <span class="section-eyebrow">For service providers</span>
     <h2 class="section-title">Ship to agents in 5 minutes.</h2>
     <div class="steps">
 
