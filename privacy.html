@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — JECP</title>
+<meta name="description" content="Privacy Policy for the JECP Hub at jecp.dev, operated by Tufe Company Inc.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://jecp.dev/privacy">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .legal-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .legal-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; }
+  .legal-container .meta { color: var(--slate-500); font-size: 14px; margin-bottom: 40px; }
+  .legal-container h2 { font-size: 22px; margin: 40px 0 16px; padding-top: 16px; border-top: 1px solid var(--slate-200); }
+  .legal-container h3 { font-size: 16px; margin: 24px 0 8px; color: var(--slate-700); }
+  .legal-container p, .legal-container li { font-size: 15px; line-height: 1.75; color: var(--slate-700); }
+  .legal-container ul { padding-left: 24px; }
+  .legal-container li { margin-bottom: 6px; }
+  .legal-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13.5px; }
+  .legal-container table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+  .legal-container th, .legal-container td { border: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .legal-container th { background: #f8fafc; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#0f172a"/>
+        <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/#capabilities">Capabilities</a>
+      <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Spec</a>
+      <a href="https://github.com/jecpdev" aria-label="GitHub">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="legal-container">
+  <h1>Privacy Policy</h1>
+  <p class="meta"><strong>Effective date:</strong> 2026-05-09 · <strong>Operator:</strong> Tufe Company Inc.</p>
+
+  <h2>1. What we collect</h2>
+
+  <h3>Agent data</h3>
+  <p>When you register an Agent, we collect:</p>
+  <ul>
+    <li><strong>Required:</strong> <code>name</code> (display label), <code>agent_type</code> (free-text categorization)</li>
+    <li><strong>Optional:</strong> <code>description</code>, <code>homepage</code>, <code>capabilities</code> (free-text list)</li>
+    <li><strong>Generated:</strong> <code>agent_id</code>, <code>api_key</code> (we store only a hash of the key, not the key itself), <code>created_at</code></li>
+  </ul>
+  <p>We do <strong>not</strong> require:</p>
+  <ul>
+    <li>The human's email</li>
+    <li>The human's name</li>
+    <li>The human's IP address (we log only for security/abuse purposes)</li>
+  </ul>
+  <p>The Agent is intentionally pseudonymous to its operator. You may, but are not required to, attach your own contact information to a registered agent.</p>
+
+  <h3>Provider data</h3>
+  <p>When you register a Provider, we collect more — registration is intended for legal entities or identified individuals:</p>
+  <ul>
+    <li><code>namespace</code>, <code>display_name</code>, <code>country</code>, <code>owner_email</code>, <code>endpoint_url</code></li>
+    <li>DNS verification records (read-only)</li>
+    <li>Stripe Connect Express account information (handled directly by Stripe; we receive only the connected account ID)</li>
+    <li>Manifest content (publicly visible at /v1/capabilities)</li>
+  </ul>
+
+  <h3>Invocation data</h3>
+  <p>For each <code>POST /v1/invoke</code> we log:</p>
+  <ul>
+    <li><code>agent_id</code>, <code>request_id</code>, <code>capability</code>, <code>action</code></li>
+    <li>Outcome (success/failed), latency, billing summary</li>
+    <li>We <strong>do not</strong> persist <code>input</code> payloads or <code>result</code> payloads in our database — these are forwarded to the Provider and discarded after response</li>
+  </ul>
+
+  <h3>Browser data (jecp.dev LP only)</h3>
+  <p>The marketing landing page may use minimal analytics (e.g., privacy-respecting page-view counters). No third-party advertising trackers. No cookies for cross-site tracking.</p>
+
+  <h2>2. Why we collect it</h2>
+  <table>
+    <thead>
+      <tr><th>Purpose</th><th>Data used</th><th>Legal basis</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Operating the Hub</td><td>Agent/Provider registrations, invocation logs</td><td>Contract performance</td></tr>
+      <tr><td>Billing &amp; revenue split</td><td>Wallet balances, transactions, Stripe Connect</td><td>Contract performance</td></tr>
+      <tr><td>Abuse prevention</td><td>IP addresses, rate-limit data</td><td>Legitimate interest</td></tr>
+      <tr><td>Debugging</td><td>Latency / error logs</td><td>Legitimate interest</td></tr>
+      <tr><td>Notification of material changes</td><td>Provider <code>owner_email</code></td><td>Legitimate interest</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Who we share with</h2>
+  <ul>
+    <li><strong>Stripe</strong> (payment processor — receives card data directly from your browser; we never see card numbers)</li>
+    <li><strong>Supabase</strong> (database hosting — Frankfurt region)</li>
+    <li><strong>Fly.io</strong> (Hub compute — Tokyo region)</li>
+    <li><strong>Cloudflare</strong> (DNS / TLS termination)</li>
+  </ul>
+  <p>We do <strong>not</strong> sell data, share with advertisers, or run agent traffic patterns through any third-party AI training service.</p>
+  <p>When required by law, we may disclose information to authorities pursuant to a valid legal process.</p>
+
+  <h2>4. Retention</h2>
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Retained for</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Agent profiles</td><td>Lifetime of registration; deleted on request</td></tr>
+      <tr><td>Invocation logs</td><td>90 days (then aggregated to monthly stats)</td></tr>
+      <tr><td>Wallet transaction records</td><td>7 years (legal/accounting requirement)</td></tr>
+      <tr><td>Provider manifests</td><td>Public; retained even after Provider sunset (with status=sunset)</td></tr>
+      <tr><td>Browser analytics</td><td>30 days</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Your rights</h2>
+  <p>You have the right to:</p>
+  <ul>
+    <li><strong>Access</strong> your data — email <a href="mailto:hello@jecp.dev">hello@jecp.dev</a> with your <code>agent_id</code> or <code>provider_id</code></li>
+    <li><strong>Correct</strong> inaccurate data — same channel</li>
+    <li><strong>Delete</strong> your account — closing an account anonymizes invocation logs (the <code>agent_id</code> becomes opaque, but transaction records are retained per §4 for legal reasons)</li>
+    <li><strong>Export</strong> your data — JSON export available on request</li>
+  </ul>
+  <p>We will respond within 30 days.</p>
+
+  <h2>6. International transfers</h2>
+  <p>Data may be processed in Japan, Singapore (Supabase region), United States (Stripe), Germany (Cloudflare PoPs), and other countries depending on routing. By using the Service you consent to these transfers.</p>
+
+  <h2>7. Security</h2>
+  <ul>
+    <li>All data in transit is TLS 1.2+</li>
+    <li>API keys are stored as bcrypt hashes</li>
+    <li>HMAC secrets are stored as-is in encrypted columns (required for signature generation)</li>
+    <li>Stripe handles card data — we never see PANs</li>
+    <li>Wallet balances are reconciled daily</li>
+  </ul>
+  <p>We have not yet undergone SOC 2 audit. We will pursue this when revenue justifies the cost.</p>
+
+  <h2>8. Children</h2>
+  <p>The Service is not directed to children under 16. We do not knowingly collect data from children.</p>
+
+  <h2>9. Changes</h2>
+  <p>We will notify Provider owners by email and Agent operators via a banner on jecp.dev when this Policy changes materially. Material changes take effect 14 days after notification.</p>
+
+  <h2>10. Contact</h2>
+  <p>Tufe Company Inc.<br>
+  Tokyo, Japan<br>
+  <a href="mailto:hello@jecp.dev">hello@jecp.dev</a></p>
+  <p>For data protection questions specifically: <a href="mailto:privacy@jecp.dev">privacy@jecp.dev</a></p>
+
+  <p style="margin-top:48px;font-size:13px;color:var(--slate-500)">
+    See also: <a href="/terms">Terms of Service</a>
+  </p>
+</main>
+
+</body>
+</html>

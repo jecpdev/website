@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service — JECP</title>
+<meta name="description" content="Terms of Service for the JECP Hub at jecp.dev, operated by Tufe Company Inc.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://jecp.dev/terms">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .legal-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .legal-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; }
+  .legal-container .meta { color: var(--slate-500); font-size: 14px; margin-bottom: 40px; }
+  .legal-container h2 { font-size: 22px; margin: 40px 0 16px; padding-top: 16px; border-top: 1px solid var(--slate-200); }
+  .legal-container h3 { font-size: 16px; margin: 24px 0 8px; color: var(--slate-700); }
+  .legal-container p, .legal-container li { font-size: 15px; line-height: 1.75; color: var(--slate-700); }
+  .legal-container ul { padding-left: 24px; }
+  .legal-container li { margin-bottom: 6px; }
+  .legal-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13.5px; }
+  .legal-container table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+  .legal-container th, .legal-container td { border: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .legal-container th { background: #f8fafc; font-weight: 600; }
+  .draft-banner { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 14px 18px; margin: 0 0 32px; border-radius: 6px; font-size: 14px; color: #78350f; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#0f172a"/>
+        <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/#capabilities">Capabilities</a>
+      <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec">Spec</a>
+      <a href="https://github.com/jecpdev" aria-label="GitHub">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="legal-container">
+  <h1>Terms of Service</h1>
+  <p class="meta"><strong>Effective date:</strong> 2026-05-09 · <strong>Operator:</strong> Tufe Company Inc.</p>
+
+  <h2>1. Acceptance</h2>
+  <p>By registering an Agent or Provider on jecp.dev, or by invoking any endpoint at jecp.dev, you agree to these Terms.</p>
+  <p>The JECP <strong>protocol specification</strong> (<a href="https://github.com/jecpdev/jecp-spec">github.com/jecpdev/jecp-spec</a>) is licensed Apache 2.0 and is <strong>not</strong> governed by this document. These Terms apply only to the Hub <em>operated</em> by Tufe Company at jecp.dev.</p>
+
+  <h2>2. Accounts</h2>
+  <h3>2.1 Agent accounts</h3>
+  <p>An Agent is registered via <code>POST /api/agents/register</code> and receives an <code>agent_id</code> and <code>api_key</code>. You are responsible for:</p>
+  <ul>
+    <li>Keeping <code>api_key</code> confidential. Treat it like a Stripe secret key.</li>
+    <li>All calls made under your <code>agent_id</code>, whether authorized by you or made possible by your failure to secure the key.</li>
+    <li>Setting Mandate budget caps appropriate to your risk tolerance. Tufe Company is not liable for over-spending by autonomous agents that you control.</li>
+  </ul>
+
+  <h3>2.2 Provider accounts</h3>
+  <p>A Provider is registered via <code>POST /v1/providers/register</code>. To activate, you must:</p>
+  <ul>
+    <li>Verify ownership of the domain hosting your endpoint via DNS TXT record.</li>
+    <li>Connect a Stripe Express account (subject to Stripe's own Connected Account Agreement).</li>
+    <li>Publish a manifest declaring capabilities, actions, and pricing.</li>
+  </ul>
+  <p>You represent and warrant that:</p>
+  <ul>
+    <li>You have the right to offer the services described in your manifest.</li>
+    <li>Your endpoint will respond to invocations within the SLAs you publish.</li>
+    <li>You will not use the Service to facilitate illegal activity, including but not limited to: unauthorized access to systems, fraud, malware distribution, or content that violates applicable law.</li>
+  </ul>
+
+  <h2>3. Wallets and payments</h2>
+  <h3>3.1 Top-up</h3>
+  <p>Agents may top up wallets at fixed denominations of $5, $20, or $100 USD via Stripe Checkout. Top-ups are non-refundable except as required by applicable law (see §3.4).</p>
+
+  <h3>3.2 Per-call charging</h3>
+  <p>Each successful capability invocation atomically debits the Agent's wallet by the amount declared in the Provider's manifest. Failed calls (status: "failed") are not charged.</p>
+
+  <h3>3.3 Revenue split</h3>
+  <p>For each successful, paid invocation:</p>
+  <ul>
+    <li><strong>85%</strong> is allocated to the Provider's Stripe Connect account</li>
+    <li><strong>10%</strong> is retained by Tufe Company as the Hub fee</li>
+    <li><strong>5%</strong> is allocated to payment processing (Stripe fees + reserve)</li>
+  </ul>
+  <p>Allocations occur atomically with the wallet debit. Stripe Transfer payouts to Provider accounts are scheduled monthly (this transfer mechanism is on roadmap for Q3 2026; until then balances are accumulated and reconciled manually upon Provider request).</p>
+
+  <h3>3.4 Refunds</h3>
+  <p>If a Provider's endpoint fails to honor a capability that was charged, the Agent may request a refund within 30 days by emailing <a href="mailto:hello@jecp.dev">hello@jecp.dev</a> with the <code>transaction_id</code>. Tufe Company will investigate in good faith and, where the charge was clearly undelivered, credit the Agent's wallet from the Provider's allocated share. Tufe Company is not obligated to refund where the Provider delivered the action as specified, even if the Agent regrets the call.</p>
+
+  <h3>3.5 Currency</h3>
+  <p>All prices are denominated in USD. JECP uses "USDC" as a unit of account but settlement happens via Stripe (USD or local currency to Provider's bank).</p>
+
+  <h2>4. Acceptable use</h2>
+  <p>You may not use the Service to:</p>
+  <ul>
+    <li>Make threatening, harassing, or unlawful invocations</li>
+    <li>Reverse-engineer the Service to extract another user's wallet balance, api_key, or transaction history</li>
+    <li>Bypass rate limits via Sybil attack (multiple registrations)</li>
+    <li>Resell or sub-license JECP api_keys without disclosure</li>
+  </ul>
+  <p>Tufe Company may suspend any Agent or Provider account that we reasonably believe is in violation of these Terms, with or without notice.</p>
+
+  <h2>5. Trust Gate</h2>
+  <p>Some capabilities require a minimum Trust Tier (Bronze/Silver/Gold/Platinum) earned by call history. Tier assignment is automated. Tufe Company reserves the right to adjust the algorithm; current rules are documented in spec §5.</p>
+
+  <h2>6. Service availability</h2>
+  <p>The Service is provided "as is" and "as available." Target availability is 99.5% monthly, but Tufe Company makes no contractual SLA at this time. Maintenance windows are announced when feasible.</p>
+
+  <h2>7. Indemnification</h2>
+  <p>You agree to indemnify and hold Tufe Company harmless from claims, damages, and expenses arising from:</p>
+  <ul>
+    <li>Your breach of these Terms</li>
+    <li>Your manifest's representations being false</li>
+    <li>Content you cause to be processed via JECP capabilities (e.g., a Provider doing OCR on personally-identifiable text the Agent fed it without authorization)</li>
+  </ul>
+
+  <h2>8. Disclaimer of warranties</h2>
+  <p>Tufe Company disclaims all warranties to the maximum extent permitted by applicable law, including merchantability, fitness for a particular purpose, and non-infringement. The protocol specification is open source and not guaranteed to be production-ready for all use cases.</p>
+
+  <h2>9. Limitation of liability</h2>
+  <p>To the maximum extent permitted by law, Tufe Company's aggregate liability arising out of these Terms or use of the Service shall not exceed (a) the total amount you paid to Tufe Company in the 12 months preceding the claim, or (b) USD $100, whichever is greater.</p>
+
+  <h2>10. Changes to these Terms</h2>
+  <p>Tufe Company may update these Terms from time to time. Material changes will be notified via email to registered Agents and Providers at least 14 days in advance. Continued use after the effective date constitutes acceptance.</p>
+
+  <h2>11. Governing law</h2>
+  <p>These Terms are governed by the laws of Japan, without regard to conflict-of-law principles. Disputes shall be resolved in the Tokyo District Court.</p>
+
+  <h2>12. Contact</h2>
+  <p>Tufe Company Inc.<br>
+  Tokyo, Japan<br>
+  <a href="mailto:hello@jecp.dev">hello@jecp.dev</a></p>
+
+  <p style="margin-top:48px;font-size:13px;color:var(--slate-500)">
+    See also: <a href="/privacy">Privacy Policy</a> · <a href="https://github.com/jecpdev/jecp-spec/blob/main/LICENSE">Apache 2.0 License</a>
+  </p>
+</main>
+
+</body>
+</html>
