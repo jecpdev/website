@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streaming responses — JECP Guides</title>
+<meta name="description" content="Server-Sent Events streaming on JECP /v1/invoke. Chunk-by-chunk pass-through with billing on completion. 4 pricing models for LLMs, audio, image batches.">
+<link rel="canonical" href="https://jecp.dev/guides/streaming">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container h3 { font-size: 18px; margin: 28px 0 12px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; }
+  .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / Streaming</p>
+  <h1>Streaming responses</h1>
+  <p class="subtitle">Server-Sent Events on <code>/v1/invoke</code>. Chunk-by-chunk pass-through. Billing settles when the Provider sends <code>completed</code>.</p>
+
+  <h2>Concept</h2>
+  <p>Some capabilities produce output incrementally — LLM tokens, TTS audio, image batches. Streaming lets the agent process the first byte before the last byte exists. JECP exposes streaming through the same <code>/v1/invoke</code> endpoint via content negotiation: send <code>Accept: text/event-stream</code> and the Hub forwards the Provider's SSE stream straight to you. There is no Hub-side buffering beyond TCP. Wallet is debited once the Provider emits <code>completed</code>.</p>
+
+  <h2>TypeScript SDK</h2>
+  <pre><code>import { JecpClient } from '@jecpdev/sdk';
+
+const jecp = new JecpClient({ agentId, apiKey });
+
+const stream = jecp.invokeStream('llm/chat', 'complete', {
+  prompt: 'Write a haiku about TCP backpressure.',
+}, {
+  mandate: { budget_usdc: 0.10 },
+});
+
+for await (const event of stream) {
+  switch (event.type) {
+    case 'chunk':
+      process.stdout.write(event.delta);
+      break;
+    case 'meter':
+      // periodic usage update from the Provider
+      console.log(`\n[meter] tokens=${event.tokens}`);
+      break;
+    case 'completed':
+      console.log('\nbilling:', event.billing);
+      break;
+    case 'error':
+      console.error('stream error:', event.error);
+      break;
+    case 'cancelled':
+      console.log('cancelled — partial billing:', event.billing);
+      break;
+  }
+}</code></pre>
+
+  <h3>Cancel mid-stream</h3>
+  <pre><code>const ctl = new AbortController();
+setTimeout(() =&gt; ctl.abort(), 5000); // cap to 5s
+
+const stream = jecp.invokeStream('llm/chat', 'complete', input, {
+  signal: ctl.signal,
+});
+
+for await (const event of stream) { /* ... */ }
+// On abort: Hub closes the upstream connection. You receive a `cancelled`
+// event and a partial bill computed from the last `meter` snapshot.</code></pre>
+
+  <h2>Five event types</h2>
+  <table>
+    <thead><tr><th>Event</th><th>Direction</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>open</code></td><td>Hub → Agent</td><td>Upstream connection established. Sent once.</td></tr>
+      <tr><td><code>chunk</code></td><td>Provider → Agent</td><td>Incremental output. <code>{ delta, index }</code>.</td></tr>
+      <tr><td><code>meter</code></td><td>Provider → Hub → Agent</td><td>Usage update for the running tally — tokens, audio_seconds, chunks, elapsed_ms.</td></tr>
+      <tr><td><code>completed</code></td><td>Provider → Hub → Agent</td><td><strong>Terminal.</strong> Includes <code>result</code>, <code>billing</code>, <code>provider</code>, <code>meter_summary</code>. Hub charges the wallet here.</td></tr>
+      <tr><td><code>error</code> / <code>cancelled</code></td><td>Hub → Agent</td><td><strong>Terminal.</strong> Stream ends. <code>cancelled</code> may include partial billing.</td></tr>
+    </tbody>
+  </table>
+  <p>Exactly one of <code>completed</code>, <code>error</code>, or <code>cancelled</code> is the last event. If the connection drops without one of those, both sides treat it as cancelled.</p>
+
+  <h2>Pricing models</h2>
+  <p>Each streaming action picks one model in its manifest. The Provider's <code>meter</code> events MUST report units consistent with the chosen model.</p>
+
+  <h3>1. Flat — fixed price per stream</h3>
+  <pre><code>actions:
+  - id: simple-stream
+    streaming: true
+    pricing:
+      base: 0.05
+      model: flat</code></pre>
+
+  <h3>2. Per token — LLMs</h3>
+  <pre><code>actions:
+  - id: chat
+    streaming: true
+    pricing:
+      base: 0.000003
+      model: per_token
+      input_per_token_usdc: 0.000003
+      output_per_token_usdc: 0.000015</code></pre>
+
+  <h3>3. Per second — TTS / live audio</h3>
+  <pre><code>actions:
+  - id: tts
+    streaming: true
+    pricing:
+      base: 0.0002
+      model: per_second
+      audio_per_second_usdc: 0.0002</code></pre>
+
+  <h3>4. Per chunk — image batches / structured streams</h3>
+  <pre><code>actions:
+  - id: image-batch
+    streaming: true
+    pricing:
+      base: 0.005
+      model: per_chunk
+      per_chunk_usdc: 0.005</code></pre>
+
+  <div class="callout">
+    Phase A (live now) charges the manifest <code>pricing.base</code> as a flat rate when <code>completed</code> arrives. Variable per-token / per-second metering is on the Phase B roadmap and ships transparently — your manifest is forward-compatible.
+  </div>
+
+  <h2>Backpressure, timeouts, and Mandate</h2>
+  <ul>
+    <li><strong>Backpressure</strong>: native HTTP/TCP flow control. If the agent reads slowly, the Hub stops pulling from the Provider. No internal Hub buffer beyond kernel sockets.</li>
+    <li><strong>No-progress timeout</strong>: 30 s between successive Provider chunks. Hub emits <code>cancelled</code> with reason <code>PROVIDER_TIMEOUT</code>.</li>
+    <li><strong>Total stream timeout</strong>: 5 minutes hard cap. Hub emits <code>cancelled</code> with reason <code>STREAM_TIMEOUT</code>.</li>
+    <li><strong>Mandate budget</strong>: enforced up-front against <code>pricing.base</code>. Mid-stream Mandate enforcement (live cost vs. running meter) ships in Phase B.</li>
+  </ul>
+
+  <h2>Errors specific to streaming</h2>
+  <table>
+    <thead><tr><th>Code</th><th>HTTP</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>NOT_STREAMABLE</code></td><td>406</td><td>You sent <code>Accept: text/event-stream</code> for an action that does not declare <code>streaming: true</code>.</td></tr>
+      <tr><td><code>PROVIDER_TIMEOUT</code></td><td>SSE event</td><td>30 s no-progress timeout from Provider.</td></tr>
+      <tr><td><code>STREAM_TIMEOUT</code></td><td>SSE event</td><td>5-minute total stream cap reached.</td></tr>
+      <tr><td><code>STREAM_INCOMPLETE</code></td><td>SSE event</td><td>Provider closed the stream without a terminal event.</td></tr>
+      <tr><td><code>PROVIDER_DISCONNECT</code></td><td>SSE event</td><td>TCP read error mid-stream.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Run your own streaming Provider</h2>
+  <p>Any HTTP server that emits <code>text/event-stream</code> works. Here is a minimal Express example. The Hub validates the HMAC headers (<code>x-jecp-signature</code>, <code>x-jecp-timestamp</code>) just like the non-streaming path.</p>
+  <pre><code>app.post('/jecp/llm-chat', verifyJecpHmac, async (req, res) =&gt; {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.flushHeaders();
+
+  const send = (event, data) =&gt;
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
+  let tokens = 0;
+  for await (const delta of myLlm.stream(req.body.input.prompt)) {
+    send('chunk', { delta, index: tokens });
+    tokens += 1;
+    if (tokens % 16 === 0) send('meter', { tokens, elapsed_ms: Date.now() - t0 });
+  }
+
+  send('completed', {
+    result: { full_text: '...' },
+    billing: { tokens },
+  });
+  res.end();
+});</code></pre>
+
+  <div class="callout">
+    Provider implementations SHOULD send <code>meter</code> events at least every 5 seconds so the Hub can apply backpressure and (in Phase B) enforce live Mandate caps.
+  </div>
+
+  <h2>From the CLI</h2>
+  <pre><code>jecp invoke llm/chat complete \
+  --input '{"prompt":"haiku about TCP"}' \
+  --stream</code></pre>
+
+  <div class="next">
+    <h3>Next steps</h3>
+    <a href="/guides/mandate">→ Cap autonomous spend with Mandate</a>
+    <a href="/guides/become-a-provider">→ Become a streaming Provider</a>
+    <a href="/guides/webhooks">→ Webhook events for completed / refunded</a>
+  </div>
+</main>
+</body>
+</html>
