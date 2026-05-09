@@ -23,6 +23,7 @@
     { "source": "/v1/capabilities",               "destination": "https://setsuna-jobdonebot.fly.dev/v1/capabilities" },
     { "source": "/v1/capabilities/:id",           "destination": "https://setsuna-jobdonebot.fly.dev/v1/capabilities/:id" },
     { "source": "/v1/invoke",                     "destination": "https://setsuna-jobdonebot.fly.dev/v1/invoke" },
+    { "source": "/v1/agents/:path*",              "destination": "https://setsuna-jobdonebot.fly.dev/v1/agents/:path*" },
     { "source": "/v1/providers/:path*",           "destination": "https://setsuna-jobdonebot.fly.dev/v1/providers/:path*" },
     { "source": "/v1/manifests",                  "destination": "https://setsuna-jobdonebot.fly.dev/v1/manifests" },
     { "source": "/v1/manifests/:path*",           "destination": "https://setsuna-jobdonebot.fly.dev/v1/manifests/:path*" },
