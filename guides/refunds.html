@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refunds — JECP Guides</title>
+<meta name="description" content="Programmatic refund flow in JECP. 30-day window, 24h auto-approval, atomic processing.">
+<link rel="canonical" href="https://jecp.dev/guides/refunds">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; }
+  .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / Refunds</p>
+  <h1>Refunds</h1>
+  <p class="subtitle">Programmatic refund flow honoring ToS §3.4. Request within 30 days, auto-resolved within 24h.</p>
+
+  <h2>The flow</h2>
+  <ol>
+    <li><strong>Agent requests:</strong> POST /v1/refunds with the original transaction_id</li>
+    <li><strong>Provider has 24h to respond</strong> — approve or deny</li>
+    <li><strong>If no response in 24h</strong>, auto-approval via cron job (5-min poll)</li>
+    <li><strong>Approval triggers atomic refund</strong>: 90% returns to agent wallet, Provider's pending revenue debited, Hub keeps 10% as processing cost</li>
+    <li><strong>Webhook events fire</strong>: <code>refund.requested</code>, <code>invocation.refunded</code> or <code>refund.denied</code></li>
+  </ol>
+
+  <h2>Request a refund</h2>
+  <pre><code>import { JecpClient, InsufficientBudgetError } from '@jecpdev/sdk';
+
+const r = await jecp.requestRefund({
+  transaction_id: 'tx-abc-123',
+  reason: 'Provider returned wrong language (asked JA, got KO)',
+  evidence_url: 'https://i.imgur.com/screenshot.png',  // optional
+});
+
+console.log(r.refund_id);            // 'rf-...'
+console.log(r.status);               // 'requested'
+console.log(r.estimated_resolution); // '2026-05-10T15:00:00Z'</code></pre>
+
+  <h2>Validation rules</h2>
+  <table>
+    <thead><tr><th>Rule</th><th>Error code</th></tr></thead>
+    <tbody>
+      <tr><td>Transaction must exist</td><td><code>TRANSACTION_NOT_FOUND</code></td></tr>
+      <tr><td>Transaction must belong to you</td><td><code>FORBIDDEN</code></td></tr>
+      <tr><td>Type must be 'charge' (not 'topup' / 'refund' / 'bonus')</td><td><code>INVALID_TRANSACTION</code></td></tr>
+      <tr><td>Within 30 days of original charge</td><td><code>REFUND_WINDOW_EXPIRED</code></td></tr>
+      <tr><td>Not already refunded</td><td><code>ALREADY_REFUNDED</code></td></tr>
+      <tr><td>Max 5 refund requests / 24h / agent</td><td><code>RATE_LIMITED</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>From the CLI</h2>
+  <pre><code>jecp refund request tx-abc-123 --reason "wrong language"
+jecp refund list
+jecp refund get rf-xxx</code></pre>
+
+  <h2>Provider side: approve / deny</h2>
+  <p>Providers receive a <code>refund.requested</code> webhook event when a refund is requested. They have 24 hours to respond:</p>
+  <pre><code>curl -X POST https://jecp.dev/v1/refunds/rf-xxx/approve \
+  -H "Authorization: Bearer jdb_pk_..."
+
+# or
+curl -X POST https://jecp.dev/v1/refunds/rf-xxx/deny \
+  -H "Authorization: Bearer jdb_pk_..." \
+  -d '{"reason":"output was correct, agent provided ambiguous input"}'</code></pre>
+
+  <h2>The economics</h2>
+  <p>Original $0.005 charge:</p>
+  <ul>
+    <li>Provider received: $0.00425 (85%)</li>
+    <li>Hub fee: $0.0005 (10%)</li>
+    <li>Payment processing: $0.00025 (5%)</li>
+  </ul>
+  <p>On refund:</p>
+  <ul>
+    <li><strong>Agent gets back: $0.0045 (90%)</strong></li>
+    <li>Provider loses: $0.00425 (debited from pending balance)</li>
+    <li>Hub keeps: $0.0005 (processing cost)</li>
+    <li>Payment processing: not recoverable from Stripe</li>
+  </ul>
+
+  <div class="callout">
+    Partial refunds are not supported in v1. All-or-nothing. Use evidence_url for clarity.
+  </div>
+
+  <h2>Webhook integration</h2>
+  <p>Both agents and providers can subscribe to refund-related events. See the <a href="/guides/webhooks">webhooks guide</a>.</p>
+
+  <div class="next">
+    <h3>Next steps</h3>
+    <a href="/guides/webhooks">→ Webhook subscriptions</a>
+    <a href="/guides/quickstart">→ TypeScript SDK quickstart</a>
+    <a href="/guides/become-a-provider">→ Becoming a Provider (refund handling)</a>
+  </div>
+</main>
+</body>
+</html>

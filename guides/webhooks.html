@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Webhooks — JECP Guides</title>
+<meta name="description" content="Subscribe to async JECP events (invocation.completed, refunds, low balance) with HMAC verification.">
+<link rel="canonical" href="https://jecp.dev/guides/webhooks">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .callout { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; color: #78350f; }
+  .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / Webhooks</p>
+  <h1>Webhooks</h1>
+  <p class="subtitle">Subscribe to async JECP events. HMAC-SHA256 signed. Outbox-pattern delivery with exponential backoff.</p>
+
+  <h2>Event types (v1)</h2>
+  <table>
+    <thead><tr><th>Event</th><th>Fires when</th><th>Subscriber</th></tr></thead>
+    <tbody>
+      <tr><td><code>invocation.completed</code></td><td>Successful charge</td><td>Agent + Provider</td></tr>
+      <tr><td><code>invocation.refunded</code></td><td>Refund processed (90% credited)</td><td>Agent + Provider</td></tr>
+      <tr><td><code>refund.requested</code></td><td>Agent files a refund</td><td>Provider</td></tr>
+      <tr><td><code>refund.denied</code></td><td>Provider denies refund</td><td>Agent + Provider</td></tr>
+      <tr><td><code>wallet.low_balance</code></td><td>Balance ≤ $0.50 after charge</td><td>Agent</td></tr>
+      <tr><td><code>provider.kyc_status_changed</code></td><td>Stripe Connect KYC update</td><td>Provider</td></tr>
+      <tr><td><code>test.synthetic</code></td><td>Manual test from POST /test endpoint</td><td>Caller</td></tr>
+    </tbody>
+  </table>
+
+  <h2>1. Subscribe</h2>
+  <pre><code>const sub = await jecp.subscribe({
+  endpoint_url: 'https://myapp.com/jecp/webhook',
+  events: ['invocation.completed', 'wallet.low_balance'],   // empty = subscribe to all
+});
+
+console.log(sub.subscription_id);  // uuid
+console.log(sub.hmac_secret);      // SHOWN ONCE — save it now</code></pre>
+
+  <div class="callout">
+    The <code>hmac_secret</code> is shown only on creation. If you lose it, delete the subscription and create a new one.
+  </div>
+
+  <h2>2. Verify inbound events</h2>
+  <p>Each event POST includes <code>X-JECP-Webhook-Signature</code> and <code>X-JECP-Webhook-Timestamp</code> headers. Use the SDK's <code>verifyWebhook()</code> helper:</p>
+  <pre><code>import { verifyWebhook, WebhookVerificationError } from '@jecpdev/sdk';
+
+app.post('/jecp/webhook', async (req, res) => {
+  try {
+    const event = await verifyWebhook({
+      body: req.rawBody,
+      signature: req.headers['x-jecp-webhook-signature'],
+      timestamp: req.headers['x-jecp-webhook-timestamp'],
+      secret: process.env.JECP_WEBHOOK_SECRET!,
+    });
+
+    switch (event.type) {
+      case 'invocation.completed':
+        await trackRevenue(event.data);
+        break;
+      case 'wallet.low_balance':
+        await alertOps(event.data.balance_after);
+        break;
+    }
+    res.status(200).send('ok');
+  } catch (e) {
+    if (e instanceof WebhookVerificationError) {
+      res.status(401).send('invalid signature');
+    } else {
+      res.status(500).send('error');
+    }
+  }
+});</code></pre>
+
+  <h2>Event payload structure</h2>
+  <pre><code>{
+  "type": "invocation.completed",
+  "id":   "evt_abc123",
+  "created_at": "2026-05-09T15:00:00Z",
+  "data": {
+    "transaction_id": "tx-abc",
+    "agent_id": "jdb_ag_...",
+    "provider_id": "uuid",
+    "capability_id": "uuid",
+    "action": "translate",
+    "amount_usdc": 0.005,
+    "balance_after": 19.995,
+    "provider_share_usdc": 0.00425
+  }
+}</code></pre>
+
+  <h2>Delivery guarantees</h2>
+  <ul>
+    <li><strong>At-least-once</strong> — handle idempotency via <code>event.id</code></li>
+    <li><strong>Outbox pattern</strong> — events committed to DB in same TX as the underlying state change</li>
+    <li><strong>Retry schedule</strong> — exponential backoff: 1m, 2m, 4m, 8m, 16m, 32m, 1h × 6 → 12 attempts ~6h total</li>
+    <li><strong>Dead letter</strong> — after 12 failures, event is abandoned (manually queryable in <code>webhook_outbox</code>)</li>
+    <li><strong>HMAC-SHA256</strong> — signature = base64(hmac_sha256(secret, ts + "." + body))</li>
+    <li><strong>Replay window</strong> — ±5 min default (configurable via <code>verifyWebhook</code> options)</li>
+  </ul>
+
+  <h2>Test your endpoint</h2>
+  <pre><code>// Trigger a synthetic event to your endpoint
+await jecp.testSubscription(sub.subscription_id);
+
+// or via CLI:
+// jecp webhook test &lt;subscription_id&gt;</code></pre>
+
+  <h2>Manage subscriptions</h2>
+  <pre><code>const list = await jecp.listSubscriptions();
+console.log(list.subscriptions);
+
+// PATCH (CLI: jecp webhook update)
+await fetch('https://jecp.dev/v1/subscriptions/SUB_ID', {
+  method: 'PATCH',
+  headers: { 'X-Agent-ID': '...', 'X-API-Key': '...', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ status: 'paused' }),
+});</code></pre>
+
+  <h2>Common patterns</h2>
+
+  <h3>Agent-side: auto-topup on low balance</h3>
+  <pre><code>// On wallet.low_balance event:
+if (event.type === 'wallet.low_balance' && event.data.balance_after &lt; 1) {
+  const { url } = await jecp.topup(20);
+  // Notify user / open URL / etc.
+}</code></pre>
+
+  <h3>Provider-side: track revenue in real time</h3>
+  <pre><code>if (event.type === 'invocation.completed') {
+  await db.revenue.insert({
+    transaction_id: event.data.transaction_id,
+    amount_usdc: event.data.provider_share_usdc,
+    capability: event.data.action,
+  });
+}</code></pre>
+
+  <div class="next">
+    <h3>Next steps</h3>
+    <a href="/guides/refunds">→ Refunds</a>
+    <a href="/guides/quickstart">→ Quickstart</a>
+    <a href="/guides/next-action">→ Error recovery</a>
+  </div>
+</main>
+</body>
+</html>
