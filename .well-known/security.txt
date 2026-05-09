@@ -1,0 +1,23 @@
+Contact: mailto:security@jecp.dev
+Contact: https://github.com/jecpdev/jecp-spec/security/advisories/new
+Expires: 2027-05-09T00:00:00.000Z
+Preferred-Languages: en, ja
+Canonical: https://jecp.dev/.well-known/security.txt
+Policy: https://jecp.dev/privacy
+Acknowledgments: https://github.com/jecpdev/jecp-spec/blob/main/SECURITY.md
+
+# JECP — Joint Execution & Commerce Protocol
+# Operated by Tufe Company Inc. (Tokyo, Japan)
+#
+# Scope:
+#   - jecp.dev (this Hub)
+#   - The reference implementation at github.com/jecpdev/jecp-server
+#   - The TypeScript SDK at github.com/jecpdev/jecp-sdk-typescript
+#
+# Out of scope:
+#   - Third-party Provider endpoints (report directly to the Provider)
+#   - Stripe / Supabase / Fly.io / Cloudflare infrastructure
+#   - The protocol specification itself (issues at github.com/jecpdev/jecp-spec/issues)
+#
+# Severity: please indicate (low / medium / high / critical) with steps to reproduce.
+# We aim to acknowledge within 24h and triage within 72h.
