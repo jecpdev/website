@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guides — JECP</title>
+<meta name="description" content="JECP guides: quickstarts, mandate budgets, becoming a Provider, error recovery, webhooks. The agent commerce protocol cookbook.">
+<link rel="canonical" href="https://jecp.dev/guides">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guides-hero { padding: 80px 24px 40px; max-width: 760px; margin: 0 auto; }
+  .guides-hero h1 { font-size: 48px; line-height: 1.1; margin: 0 0 12px; }
+  .guides-hero p { font-size: 18px; color: var(--slate-700); margin: 0 0 32px; }
+  .category-list { max-width: 760px; margin: 0 auto; padding: 0 24px 96px; }
+  .category-list h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--slate-500); margin: 32px 0 12px; }
+  .guide-card { display: block; padding: 20px 24px; margin: 0 0 12px; background: white; border: 1px solid var(--slate-200); border-radius: 12px; text-decoration: none; transition: border-color 0.15s ease; }
+  .guide-card:hover { border-color: var(--cyan); }
+  .guide-card h3 { margin: 0 0 4px; font-size: 17px; color: var(--slate-900); }
+  .guide-card p { margin: 0; font-size: 14px; color: var(--slate-700); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#0f172a"/>
+        <path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/#capabilities">Capabilities</a>
+      <a href="/guides" style="color:var(--cyan-dark)">Guides</a>
+      <a href="/docs">API</a>
+      <a href="https://github.com/jecpdev">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="guides-hero">
+  <h1>Guides</h1>
+  <p>From "register your first agent" to "publish a Provider manifest" — practical, runnable cookbooks for the JECP protocol.</p>
+</section>
+
+<div class="category-list">
+
+  <h2>Getting started</h2>
+  <a class="guide-card" href="/guides/quickstart">
+    <h3>Quickstart — agent in 5 minutes</h3>
+    <p>Register an agent, get 100 free calls, and invoke your first capability with the TypeScript SDK.</p>
+  </a>
+  <a class="guide-card" href="/guides/cli">
+    <h3>Use the JECP CLI</h3>
+    <p>Install <code>@jecpdev/cli</code> and run <code>jecp register</code>, <code>jecp invoke</code>, <code>jecp catalog</code> from your terminal.</p>
+  </a>
+
+  <h2>Building agents</h2>
+  <a class="guide-card" href="/guides/mandate">
+    <h3>Pre-authorized budgets with Mandate</h3>
+    <p>Cap an autonomous agent's spend before it runs. Server-side enforcement. Recovery patterns.</p>
+  </a>
+  <a class="guide-card" href="/guides/next-action">
+    <h3>Auto-recovery with <code>next_action</code></h3>
+    <p>Discriminated-union error handling so agents recover without humans in the loop.</p>
+  </a>
+
+  <h2>Building providers</h2>
+  <a class="guide-card" href="/guides/become-a-provider">
+    <h3>Becoming a Provider in 5 minutes</h3>
+    <p>Register, DNS-verify, connect Stripe Express, publish your manifest, earn 85%.</p>
+  </a>
+
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p style="text-align:center;font-size:13px;color:var(--slate-500);margin:0;padding:32px 0">
+      <a href="/" style="color:var(--slate-700)">jecp.dev</a> ·
+      <a href="https://github.com/jecpdev/jecp-spec" style="color:var(--slate-700)">Spec</a> ·
+      <a href="/terms" style="color:var(--slate-700)">Terms</a> ·
+      <a href="/privacy" style="color:var(--slate-700)">Privacy</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

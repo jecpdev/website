@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quickstart — JECP Guides</title>
+<meta name="description" content="Register a JECP agent, get 100 free calls, and invoke a capability with the TypeScript SDK in under 5 minutes.">
+<link rel="canonical" href="https://jecp.dev/guides/quickstart">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container h3 { font-size: 18px; margin: 28px 0 12px; color: var(--slate-700); }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container ul, .guide-container ol { padding-left: 24px; }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .guide-container .next h3 { margin: 0 0 12px; }
+  .guide-container .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+  .guide-container .next a:hover { text-decoration: underline; }
+  .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a>
+      <a href="/#how">How</a>
+      <a href="/guides">Guides</a>
+      <a href="/docs">API</a>
+      <a href="https://github.com/jecpdev">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / Quickstart</p>
+  <h1>Quickstart — agent in 5 minutes</h1>
+  <p class="subtitle">Register a JECP agent, get 100 free calls, and invoke a capability with the TypeScript SDK.</p>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>Node.js ≥ 20</li>
+    <li>5 minutes</li>
+  </ul>
+
+  <h2>1. Install the SDK</h2>
+  <pre><code>npm install @jecpdev/sdk</code></pre>
+
+  <h2>2. Register an agent</h2>
+  <pre><code>import { JecpClient } from '@jecpdev/sdk';
+
+const reg = await JecpClient.register({
+  name: 'MyResearchAgent',
+  agent_type: 'research',
+  description: 'Reads docs, writes summaries',
+});
+
+console.log('agent_id:', reg.agent_id);
+console.log('api_key: ', reg.api_key);   // shown ONCE — save it
+console.log('free calls:', reg.free_calls_remaining); // 100</code></pre>
+
+  <div class="callout">
+    <strong>Save the api_key now.</strong> Treat it like a Stripe secret. It cannot be recovered if lost — you'd register a new agent and start over.
+  </div>
+
+  <h2>3. Invoke a capability</h2>
+  <pre><code>const jecp = new JecpClient({
+  agentId: reg.agent_id,
+  apiKey:  reg.api_key,
+});
+
+const { output, billing, wallet_balance_after } = await jecp.invoke(
+  'jobdonebot/content-factory',
+  'translate',
+  { text: 'Hello, world!', target_lang: 'JA' },
+);
+
+console.log(output);                    // { translated: 'こんにちは、世界!' }
+console.log(billing.charged);           // true
+console.log(billing.amount_usdc);       // 0.005
+console.log(wallet_balance_after);      // 0.995 (started 1.00, charged 0.005)</code></pre>
+
+  <h2>What just happened</h2>
+  <ol>
+    <li><strong>Register</strong>: Hub created an <code>agent_id</code> + <code>api_key</code> pair, allocated 100 free calls.</li>
+    <li><strong>Invoke</strong>: Hub validated credentials, looked up the <code>jobdonebot/content-factory</code> manifest, found the <code>translate</code> action, charged <code>$0.005</code> from your wallet, signed the request with HMAC, forwarded to the Provider's endpoint, and returned the result.</li>
+    <li><strong>Billing</strong>: 85% to Provider, 10% Hub fee, 5% payment processing — atomic in a single SQL transaction.</li>
+  </ol>
+
+  <h2>Production-grade defaults</h2>
+  <pre><code>const jecp = new JecpClient({
+  agentId, apiKey,
+  timeoutMs: 30_000,
+  retryConfig: { maxRetries: 3 },     // exp backoff on 5xx/408/429/network
+  logger: console,                    // observe retries and errors
+});
+
+// Cancel mid-flight + per-call timeout
+const ctl = new AbortController();
+const r = await jecp.invoke('a/b', 'c', input, {
+  signal: ctl.signal,
+  timeoutMs: 60_000,
+  mandate: { budget_usdc: 1.00 },     // pre-authorize spend cap
+});</code></pre>
+
+  <h2>Error handling with <code>next_action</code></h2>
+  <pre><code>import { JecpError, InsufficientBalanceError } from '@jecpdev/sdk';
+
+try {
+  await jecp.invoke('a/b', 'c', input);
+} catch (e) {
+  if (e instanceof InsufficientBalanceError) {
+    // Auto-recovery — open the topup URL
+    const { url } = await jecp.topup(20);
+    console.log('Top up here:', url);
+  }
+  if (e instanceof JecpError) {
+    console.log('next_action:', e.nextAction);
+  }
+}</code></pre>
+
+  <div class="next">
+    <h3>Next steps</h3>
+    <a href="/guides/mandate">→ Pre-authorized budgets with Mandate</a>
+    <a href="/guides/next-action">→ Auto-recovery with <code>next_action</code></a>
+    <a href="/guides/become-a-provider">→ Becoming a Provider in 5 minutes</a>
+    <a href="/guides/cli">→ Use the JECP CLI</a>
+  </div>
+</main>
+</body>
+</html>

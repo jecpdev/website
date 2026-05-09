@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Becoming a Provider — JECP Guides</title>
+<meta name="description" content="Onboard your service as a JECP Provider in 5 minutes. Register, DNS-verify, connect Stripe, publish manifest, earn 85% per call.">
+<link rel="canonical" href="https://jecp.dev/guides/become-a-provider">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .step { background: white; border: 1px solid var(--slate-200); border-radius: 12px; padding: 24px 28px; margin: 16px 0; }
+  .step h3 { margin: 0 0 12px; font-size: 18px; }
+  .step .step-num { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background: var(--cyan-dark); color: white; border-radius: 50%; font-size: 13px; margin-right: 8px; vertical-align: middle; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; }
+  .guide-container .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .guide-container .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / Become a Provider</p>
+  <h1>Becoming a Provider in 5 minutes</h1>
+  <p class="subtitle">Wrap your existing service as a JECP capability and start receiving 85% revenue per agent call.</p>
+
+  <h2>What you'll need</h2>
+  <ul>
+    <li>A domain you own (for DNS verification)</li>
+    <li>A Stripe account in one of the <a href="https://stripe.com/global">47 supported countries</a></li>
+    <li>An HTTP endpoint that accepts POST + verifies HMAC (the SDK provides a helper)</li>
+    <li>5 minutes</li>
+  </ul>
+
+  <div class="step">
+    <h3><span class="step-num">1</span>Register the Provider</h3>
+    <pre><code>POST https://jecp.dev/v1/providers/register
+{
+  "namespace":     "yourco",
+  "display_name":  "Your Co",
+  "country":       "US",
+  "owner_email":   "founder@yourco.com",
+  "endpoint_url":  "https://yourco.com/jecp"
+}
+
+← {
+  "provider_id":      "uuid",
+  "provider_api_key": "jdb_pk_...",   // shown ONCE
+  "hmac_secret":      "...",          // shown ONCE
+  "dns_token":        "..."
+}</code></pre>
+    <div class="callout">Save <code>provider_api_key</code> and <code>hmac_secret</code> immediately — they cannot be recovered.</div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">2</span>Verify domain ownership via DNS</h3>
+    <pre><code># Add this TXT record at your DNS provider:
+TXT _jecp.yourco.com  "jecp-verify=&lt;dns_token&gt;"
+
+# Then call:
+POST https://jecp.dev/v1/providers/verify-dns
+Authorization: Bearer jdb_pk_...
+{ "domain": "yourco.com" }
+
+← { "verified": true }</code></pre>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">3</span>Connect Stripe Express</h3>
+    <pre><code>POST https://jecp.dev/v1/providers/connect-stripe
+Authorization: Bearer jdb_pk_...
+
+← { "onboarding_url": "https://connect.stripe.com/setup/..." }</code></pre>
+    <p>Open the <code>onboarding_url</code> in a browser. Stripe walks you through KYC + bank account setup. 5-min for most legal entities.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">4</span>Publish your manifest</h3>
+    <pre><code>POST https://jecp.dev/v1/manifests
+Authorization: Bearer jdb_pk_...
+Content-Type: application/x-yaml
+
+namespace: yourco
+capability: translate
+version: 1.0.0
+endpoint: https://yourco.com/jecp
+description: Translate text between any two languages
+actions:
+  - id: translate
+    description: Translate input.text to input.target_lang
+    pricing: { base: 0.005, currency: usdc }
+    rate_limit_rpm: 60
+    input_schema:
+      type: object
+      required: [text, target_lang]
+      properties:
+        text: { type: string, maxLength: 5000 }
+        target_lang: { type: string, enum: [JA, EN, FR, DE, ES] }
+    examples:
+      - { input: { text: "Hello", target_lang: "JA" }, output: { translated: "こんにちは" } }</code></pre>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">5</span>Implement the endpoint</h3>
+    <pre><code>// Using @jecpdev/sdk's JecpProvider helper (TypeScript)
+import { JecpProvider } from '@jecpdev/sdk';
+
+const provider = new JecpProvider({
+  hmacSecret: process.env.JECP_HMAC_SECRET!,
+});
+
+// Works on Bun, Cloudflare Workers, Next.js Route Handlers
+export const POST = provider.createHandler(async (req) =&gt; {
+  if (req.action === 'translate') {
+    const { text, target_lang } = req.input as { text: string; target_lang: string };
+    return { translated: await myTranslate(text, target_lang) };
+  }
+  throw new Error(`unknown action: ${req.action}`);
+});</code></pre>
+    <p>HMAC verification + ±5 min replay window are handled inside <code>createHandler</code>. Your business logic only runs after the signature is verified.</p>
+  </div>
+
+  <h2>Revenue split</h2>
+  <ul>
+    <li><strong>85%</strong> to you (Provider) — atomically allocated per successful call</li>
+    <li><strong>10%</strong> Hub fee (Tufe Company)</li>
+    <li><strong>5%</strong> payment processing (Stripe + reserve)</li>
+  </ul>
+  <p>Failed invocations are not charged. Stripe Transfer payouts to your account are scheduled monthly (automated payouts ship Q3 2026).</p>
+
+  <h2>Browser/edge runtime</h2>
+  <p>If your endpoint runs on Cloudflare Workers, Deno, or any environment without <code>node:crypto</code>:</p>
+  <pre><code>import { JecpProvider } from '@jecpdev/sdk/browser';
+// ...same API, uses Web Crypto API under the hood</code></pre>
+
+  <div class="next">
+    <a href="/guides/quickstart">→ TypeScript SDK quickstart (agent side)</a>
+    <a href="/guides/cli">→ JECP CLI</a>
+    <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/05-manifest.md">→ Manifest spec</a>
+  </div>
+</main>
+</body>
+</html>

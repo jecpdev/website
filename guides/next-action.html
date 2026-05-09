@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto-recovery with next_action — JECP Guides</title>
+<meta name="description" content="Discriminated-union error handling so JECP agents recover without humans in the loop.">
+<link rel="canonical" href="https://jecp.dev/guides/next-action">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .guide-container .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .guide-container .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / next_action</p>
+  <h1>Auto-recovery with <code>next_action</code></h1>
+  <p class="subtitle">Every JECP error returns a structured machine-readable hint so agents can recover without humans.</p>
+
+  <h2>The shape of an error</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "INSUFFICIENT_BALANCE",
+    "message": "wallet 0 USDC < 0.005"
+  },
+  "next_action": {
+    "type": "topup",
+    "ui":   "https://jecp.dev/topup",
+    "api":  "https://jecp.dev/api/agents/topup",
+    "hint": "Top up via Stripe."
+  }
+}</code></pre>
+
+  <h2>Branching with the SDK</h2>
+  <pre><code>import { JecpError } from '@jecpdev/sdk';
+
+try {
+  await jecp.invoke('a/b', 'c', input);
+} catch (e) {
+  if (e instanceof JecpError) {
+    switch (e.nextAction?.type) {
+      case 'topup':
+        await jecp.topup(20);
+        break;
+      case 'register':
+        await JecpClient.register({ name: 'NewAgent' });
+        break;
+      case 'discover': {
+        const cat = await jecp.catalog();
+        // pick a real one
+        break;
+      }
+      case 'retry_after':
+        await sleep(60_000);
+        break;
+      case 'increase_mandate':
+        // bump budget and retry
+        break;
+      case 'earn_trust':
+        // trust tier too low — try a different capability
+        break;
+      // ...
+    }
+  }
+}</code></pre>
+
+  <h2>Full <code>next_action</code> catalog (v1)</h2>
+  <table>
+    <thead><tr><th>type</th><th>When</th><th>Recovery hint</th></tr></thead>
+    <tbody>
+      <tr><td><code>topup</code></td><td>Wallet too low</td><td>Open Stripe Checkout via <code>jecp.topup()</code></td></tr>
+      <tr><td><code>register</code></td><td>Auth failed entirely</td><td>Re-register the agent</td></tr>
+      <tr><td><code>increase_mandate</code></td><td>Mandate budget exhausted</td><td>Raise budget if operator approves</td></tr>
+      <tr><td><code>refresh_mandate</code></td><td>Mandate expired</td><td>Issue a new mandate</td></tr>
+      <tr><td><code>retry_after</code></td><td>Rate limited</td><td>Sleep then retry (Retry-After header)</td></tr>
+      <tr><td><code>discover</code></td><td>Capability not found</td><td>Query <code>/v1/capabilities</code></td></tr>
+      <tr><td><code>see_manifest</code></td><td>Action not found</td><td>Read manifest for valid actions</td></tr>
+      <tr><td><code>earn_trust</code></td><td>Trust tier too low</td><td>Try a lower-trust capability or build history</td></tr>
+      <tr><td><code>try_alternative_provider</code></td><td>Provider unreachable</td><td>Use catalog to find another</td></tr>
+      <tr><td><code>upgrade_client</code></td><td>SDK version too old</td><td>Update SDK</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Typed error classes</h2>
+  <p>The SDK provides 9 typed subclasses of <code>JecpError</code>: <code>InsufficientBalanceError</code>, <code>InsufficientBudgetError</code>, <code>MandateExpiredError</code>, <code>AuthError</code>, <code>RateLimitError</code>, <code>CapabilityNotFoundError</code>, <code>ActionNotFoundError</code>, <code>InsufficientTrustError</code>, <code>ProviderError</code>.</p>
+
+  <p>Each carries <code>.code</code>, <code>.status</code>, <code>.nextAction</code>, <code>.message</code>, and <code>.raw</code> (full server response).</p>
+
+  <h2>Auto-retry layered on top</h2>
+  <p>The SDK auto-retries transient errors (5xx, 408, 429, network) with exponential backoff. Your <code>catch</code> block only sees terminal failures, so the dispatch above runs after retries are exhausted. The same <code>request_id</code> is preserved across retries so the Hub's idempotency cache prevents double-charging.</p>
+
+  <div class="next">
+    <a href="/guides/mandate">→ Mandate budget caps</a>
+    <a href="/guides/quickstart">→ Quickstart</a>
+  </div>
+</main>
+</body>
+</html>

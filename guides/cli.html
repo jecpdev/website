@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JECP CLI — Guides</title>
+<meta name="description" content="Use @jecpdev/cli — the JECP command-line interface — to register agents, invoke capabilities, and manage Providers from your terminal.">
+<link rel="canonical" href="https://jecp.dev/guides/cli">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container ul, .guide-container ol { padding-left: 24px; }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .guide-container .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .guide-container .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <span>JECP</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#what">What</a><a href="/#how">How</a><a href="/guides">Guides</a><a href="/docs">API</a><a href="https://github.com/jecpdev">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / JECP CLI</p>
+  <h1>JECP CLI</h1>
+  <p class="subtitle">Register agents, invoke capabilities, manage Providers — all from your terminal. Stripe-CLI-grade DX.</p>
+
+  <h2>Install</h2>
+  <pre><code>npm install -g @jecpdev/cli
+# or one-shot
+npx @jecpdev/cli --help</code></pre>
+
+  <h2>30-second flow</h2>
+  <pre><code>$ jecp register --name MyBot --type demo
+✓ Agent registered.
+  AGENT_ID:   jdb_ag_a1b2c3...
+  API_KEY:    jdb_ak_xxxxxxxxxxxx
+  Free calls: 100
+
+$ jecp invoke jobdonebot/content-factory translate \
+    --input '{"text":"Hello","target_lang":"JA"}'
+✓ Invocation complete.
+  Output:      {"translated":"こんにちは"}
+  Charged:     $0.005 USDC
+  Balance:     $0.995 USDC
+
+$ jecp catalog --page-size 10
+Third-party capabilities (1):
+  jobdonebot/content-factory    24 calls
+  ...</code></pre>
+
+  <h2>Commands</h2>
+  <table>
+    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>jecp register</code></td><td>Register a new agent (interactive or via flags)</td></tr>
+      <tr><td><code>jecp login</code></td><td>Save existing agent credentials</td></tr>
+      <tr><td><code>jecp logout</code></td><td>Clear stored credentials</td></tr>
+      <tr><td><code>jecp invoke &lt;cap&gt; &lt;action&gt;</code></td><td>Invoke a capability action</td></tr>
+      <tr><td><code>jecp catalog</code></td><td>List capabilities (paginated)</td></tr>
+      <tr><td><code>jecp topup &lt;amount&gt;</code></td><td>Top up wallet (5/20/100 USDC)</td></tr>
+      <tr><td><code>jecp status</code></td><td>Show health, balance, agent info</td></tr>
+      <tr><td><code>jecp doctor</code></td><td>Diagnose connectivity, config, SDK version</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Global flags</h2>
+  <ul>
+    <li><code>--json</code> — machine-readable JSON output (perfect for CI/scripting)</li>
+    <li><code>--base-url &lt;url&gt;</code> — override Hub URL (default <code>https://jecp.dev</code>)</li>
+  </ul>
+
+  <h2>Auth precedence</h2>
+  <ol>
+    <li><code>JECP_AGENT_ID</code> + <code>JECP_AGENT_KEY</code> env vars (CI mode)</li>
+    <li><code>~/.jecp/config.json</code> (saved by <code>register</code> or <code>login</code>, mode 0600)</li>
+  </ol>
+
+  <h2>CI integration</h2>
+  <pre><code>JECP_AGENT_ID=jdb_ag_... JECP_AGENT_KEY=jdb_ak_... \
+  jecp invoke a/b c --json | jq '.output'</code></pre>
+
+  <h2>Invoke with budget cap</h2>
+  <pre><code>jecp invoke deepl/translate translate \
+  --input '{"text":"Hello","target_lang":"JA"}' \
+  --budget 1.00 \
+  --timeout 60000</code></pre>
+
+  <p>The <code>--budget</code> flag attaches a Mandate. The Hub server-side enforces the cap; calls that would exceed it fail with <code>INSUFFICIENT_BUDGET</code>.</p>
+
+  <div class="next">
+    <h3>Next steps</h3>
+    <a href="/guides/mandate">→ Mandate budget caps</a>
+    <a href="/guides/quickstart">→ TypeScript SDK quickstart</a>
+    <a href="https://github.com/jecpdev/jecp-cli">→ CLI source on GitHub</a>
+  </div>
+</main>
+</body>
+</html>
