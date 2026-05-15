@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>x402 quickstart — pay each invoke from a Base USDC wallet — JECP Guides</title>
+<meta name="description" content="Four commands from npm install to your agent settling USDC on Base for every paid JECP capability invoke. No Stripe top-ups, no human in the loop.">
+<link rel="canonical" href="https://jecp.dev/guides/x402">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .guide-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .guide-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .guide-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .guide-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .guide-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .guide-container h2 { font-size: 24px; margin: 48px 0 16px; }
+  .guide-container h3 { font-size: 18px; margin: 28px 0 12px; }
+  .guide-container p, .guide-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .guide-container ul, .guide-container ol { padding-left: 24px; }
+  .guide-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .guide-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .guide-container pre code { background: transparent; padding: 0; color: inherit; }
+  .guide-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .guide-container th, .guide-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .guide-container th { background: #f8fafc; font-weight: 600; }
+  .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-size: 15px; }
+  .callout-warn { background: #fffbeb; border-left: 3px solid #f59e0b; }
+  .next { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--slate-200); }
+  .next h3 { margin: 0 0 12px; }
+  .next a { display: block; margin: 0 0 8px; color: var(--cyan-dark); text-decoration: none; font-weight: 500; }
+  .next a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#x402">x402</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="guide-container">
+  <p class="breadcrumb"><a href="/guides">Guides</a> / x402 quickstart</p>
+  <h1>x402 quickstart — pay each invoke from a Base USDC wallet</h1>
+  <p class="subtitle">Target reading time: 60 seconds. Target time-to-first-paid-invoke: 3 minutes. Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md">v1.1 §4</a>.</p>
+
+  <p>Four commands take you from <code>npm install</code> to your agent settling USDC on Base for every paid capability invoke. No Stripe top-ups, no human in the loop. The SDK never sees your private key.</p>
+
+  <h2>1. Install</h2>
+  <pre><code>npm install @jecpdev/sdk ethers</code></pre>
+  <p><code>ethers</code> is a peer dependency — the SDK does not ship it (browser bundles stay lean). v6 or newer is required.</p>
+
+  <h2>2. Set the env var</h2>
+  <pre><code>export AGENT_BASE_KEY=0x...   # 32-byte private key for an EOA on Base</code></pre>
+  <p>This is the wallet that will pay for invokes. Keep it isolated to your agent — don't reuse a personal wallet.</p>
+
+  <h2>3. Top up the wallet</h2>
+  <p>Move USDC to that address on Base mainnet (chain id <code>8453</code>) or Base Sepolia (<code>84532</code>). Two paths:</p>
+  <ul>
+    <li><strong>Coinbase Onramp</strong>: card or ACH &rarr; Base USDC. Open <a href="https://pay.coinbase.com/buy/select-asset?assets=USDC">pay.coinbase.com</a>, paste the EOA address derived from <code>AGENT_BASE_KEY</code>.</li>
+    <li><strong>Coinbase Developer Platform (CDP)</strong>: programmatic wallet provisioning with treasury-funded transfers. See <a href="https://portal.cdp.coinbase.com/products/wallet-api">portal.cdp.coinbase.com</a>.</li>
+  </ul>
+  <p>A typical x402 invoke is $0.20-$1.00, so $5 of USDC is plenty for testing.</p>
+
+  <h2>4. Code (10 lines)</h2>
+  <pre><code>import { JecpClient, walletFromEnv } from '@jecpdev/sdk';
+
+const jecp = new JecpClient({
+  agentId: process.env.JECP_AGENT_ID!,
+  apiKey:  process.env.JECP_API_KEY!,
+  payment: {
+    mode: 'x402',
+    signer: walletFromEnv(),       // reads AGENT_BASE_KEY
+    maxPerCallUsdc: 1_000_000n,    // safety cap: $1 max per invoke
+  },
+});
+
+const r = await jecp.invoke('jobdonebot/bg-remover-pro', 'remove', {
+  image_url: 'https://example.com/cat.png',
+});</code></pre>
+
+  <h2>Verify</h2>
+  <pre><code>console.log(r.output);          // capability result
+console.log(r.payment?.txHash); // 0x... — settlement tx on Base
+console.log(r.payment?.amount_usd); // 0.20</code></pre>
+  <p>Look up the tx on <code>https://basescan.org/tx/{txHash}</code> to confirm the on-chain 85/10/5 revenue split landed in a single block.</p>
+
+  <h2>Safety caps (recommended in production)</h2>
+  <p>An autonomous agent that can be tricked into draining its wallet is a CVE. The SDK enforces three caps <strong>before</strong> signing, so a compromised facilitator or prompt-injected agent cannot extract a signature for a too-large amount.</p>
+  <pre><code>payment: {
+  mode: 'x402',
+  signer: walletFromEnv(),
+  maxPerCallUsdc: 1_000_000n,    // refuse to sign if 402 asks for &gt; $1
+  maxPerHourUsdc: 10_000_000n,   // refuse if rolling 1h sum + ask &gt; $10
+  maxGasRatio: 0.05,             // refuse if gas &gt; 5% of invoke amount
+}</code></pre>
+  <p>Cap breaches throw typed errors with <code>nextAction</code> hints:</p>
+  <table>
+    <thead>
+      <tr><th>Error</th><th><code>nextAction.type</code></th><th>What to do</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>X402AmountCapExceededError</code></td><td><code>raise_cap</code></td><td>The Hub asked for more than your per-call cap. Audit the capability's pricing or bump the cap.</td></tr>
+      <tr><td><code>X402HourlyCapExceededError</code></td><td><code>review_intent</code></td><td>Your agent ran hot — pause it and inspect call patterns.</td></tr>
+      <tr><td><code>X402GasRatioExceededError</code></td><td><code>check_gas</code></td><td>Base congested. Wait, or raise <code>maxGasRatio</code> if you accept higher overhead.</td></tr>
+    </tbody>
+  </table>
+  <p>These caps are <strong>not</strong> a substitute for Hub-side mandate budgets — they are the inner-most ring of defense, paired with <code>mandate.budget_usdc</code>.</p>
+
+  <h2>Default mode is <code>auto</code> — backward compatible</h2>
+  <p><code>mode: 'x402'</code> strictly refuses to fall back to Stripe wallet path. If you want both:</p>
+  <pre><code>payment: { mode: 'auto', signer: walletFromEnv() }</code></pre>
+  <p><code>auto</code> (default) tries x402 first when the capability supports it, otherwise surfaces the typed 402 error so you can drive a Stripe Checkout via <code>err.nextAction</code>.</p>
+
+  <h2>Error handling</h2>
+  <pre><code>import {
+  X402PaymentInvalidError,
+  X402SettlementTimeoutError,
+  X402FacilitatorUnreachableError,
+  X402SettlementReusedError,
+  X402AmountCapExceededError,
+} from '@jecpdev/sdk';
+
+try {
+  const r = await jecp.invoke(/* ... */);
+} catch (e) {
+  if (e instanceof X402PaymentInvalidError) {
+    // subcause: signature_invalid | amount_mismatch | nonce_reused | expired
+    console.log('facilitator rejected:', e.subcause, e.nextAction?.hint);
+  } else if (e instanceof X402SettlementTimeoutError) {
+    // retryable — wait, regenerate nonce, retry
+  }
+  // ... other branches
+}</code></pre>
+  <p>The full error catalog is in <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-error-catalog.md">spec/03-error-catalog.md</a>.</p>
+
+  <h2>Performance characteristics</h2>
+  <p>The 402-then-X-Payment retry adds <strong>200-300ms</strong> to the first invoke wall clock (one extra round-trip + EIP-712 signing). Subsequent invokes in the same <code>JecpClient</code> re-use the signer adapter — there's no warm-up cost.</p>
+  <p>If you'd rather avoid the round-trip, the Hub publishes per-action pricing in the catalog manifest; pre-sign by reading <code>JecpClient.estimateCost()</code> and constructing your own EIP-3009 authorization.</p>
+
+  <h2>Running the live example</h2>
+  <pre><code>git clone https://github.com/jecpdev/jecp-sdk-typescript
+cd jecp-sdk-typescript
+npm install
+export AGENT_BASE_KEY=0x...
+export JECP_AGENT_ID=jdb_ag_...
+export JECP_API_KEY=jdb_ak_...
+npx tsx examples/05-x402-invoke.ts</code></pre>
+
+  <h2>What's NOT in this quickstart</h2>
+  <ul>
+    <li><strong>Coinbase Onramp deep-link helper</strong> — deferred to v0.9 (<code>@jecpdev/sdk/x402/onramp</code>).</li>
+    <li><strong>viem adapter</strong> — bring-your-own; the <code>Signer</code> interface is two methods.</li>
+    <li><strong>AWS KMS Ethereum signer</strong> — locked-design §H-3 production pattern; ships post-GA.</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <strong>Single-block atomic, not same-tx.</strong> The x402.org facilitator pulls USDC and the Splitter contract distributes 85/10/5 in two transactions in the same block (~2s apart). Treat them as atomic for accounting; do not assume single-tx semantics.
+  </div>
+
+  <div class="next">
+    <h3>Next</h3>
+    <a href="/guides/quickstart">&rarr; Quickstart (Stripe wallet path)</a>
+    <a href="/guides/mandate">&rarr; Pre-authorized budgets with Mandate</a>
+    <a href="/guides/next-action">&rarr; Auto-recovery with next_action</a>
+    <a href="https://www.npmjs.com/package/@jecpdev/sdk">&rarr; @jecpdev/sdk on npm</a>
+    <a href="https://github.com/jecpdev/jecp-sdk-typescript">&rarr; SDK on GitHub</a>
+    <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md">&rarr; Spec v1.1 §4 — x402 integration</a>
+    <a href="https://github.com/jecpdev/jecp-contracts">&rarr; jecp-contracts (JecpSplitter.sol)</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p style="text-align:center;font-size:13px;color:var(--slate-500);margin:0;padding:32px 0">
+      <a href="/" style="color:var(--slate-700)">jecp.dev</a> ·
+      <a href="https://github.com/jecpdev/jecp-spec" style="color:var(--slate-700)">Spec</a> ·
+      <a href="/terms" style="color:var(--slate-700)">Terms</a> ·
+      <a href="/privacy" style="color:var(--slate-700)">Privacy</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

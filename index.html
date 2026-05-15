@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JECP — Joint Execution &amp; Commerce Protocol</title>
-<meta name="description" content="The open protocol for agent-to-service commerce. Earn revenue when your customer isn't human. Apache 2.0. Spec v1.0.">
-<meta name="keywords" content="agent commerce protocol, B2A, monetize AI agent API, agent payment, JECP, MCP payment, LLM agent billing">
+<meta name="description" content="x402-native agent commerce protocol with on-chain single-block atomic 85/10/5 revenue split. Provider keeps 85% on every invoke. No top-ups, no middlemen. Apache 2.0. Spec v1.1.">
+<meta name="keywords" content="agent commerce protocol, x402, USDC, Base, on-chain revenue split, B2A, monetize AI agent API, agent payment, JECP, MCP payment, LLM agent billing">
 
 <!-- OGP -->
 <meta property="og:title" content="JECP — Revenue, when your customer isn't human.">
-<meta property="og:description" content="The open protocol for agent-to-service commerce. Pre-authorized budgets. Tiered trust. Atomic settlement.">
+<meta property="og:description" content="x402-native. On-chain single-block atomic 85/10/5 revenue split. Provider keeps 85% on every invoke. No top-ups, no middlemen.">
 <meta property="og:url" content="https://jecp.dev">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JECP">
@@ -17,7 +17,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JECP — Revenue, when your customer isn't human.">
-<meta name="twitter:description" content="The open Agent Commerce Protocol. Apache 2.0. Spec v1.0.">
+<meta name="twitter:description" content="x402-native agent commerce protocol. On-chain single-block atomic 85/10/5 split. Apache 2.0. Spec v1.1.">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
   "@type": "SoftwareApplication",
   "name": "JECP",
   "alternateName": "Joint Execution & Commerce Protocol",
-  "description": "Open protocol for agent-to-service commerce: discovery, execution, and per-call settlement with pre-authorized budgets.",
+  "description": "x402-native open protocol for agent-to-service commerce. On-chain single-block atomic 85/10/5 revenue split via Splitter contract on Base. Discovery, execution, and per-call settlement with pre-authorized budgets.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Cross-platform",
   "offers": {
@@ -61,10 +61,10 @@
     </a>
     <nav class="nav-links">
       <a href="#paths">Two paths</a>
+      <a href="#x402">x402</a>
       <a href="#beyond">Beyond payment</a>
       <a href="#agent-wallet">Agent</a>
       <a href="#provider">Provider</a>
-      <a href="#case">JobDoneBot</a>
       <a href="https://github.com/jecpdev/jecp-spec">Spec</a>
       <a href="https://github.com/jecpdev">GitHub</a>
     </nav>
@@ -76,17 +76,44 @@
   <div class="container">
     <span class="hero-eyebrow">
       <span class="dot"></span>
-      Production since 2026-05 · Apache 2.0 · Spec v1.0
+      x402-native · Spec v1.1 · Apache 2.0
     </span>
     <h1 class="hero-title">Revenue, <em>when your customer isn't human.</em></h1>
     <p class="hero-sub">
-      JECP is the open protocol for agent-to-service commerce.<br>
-      <strong>Sell to agents</strong> — or <strong>build your own with their own wallet</strong>.
-      Same protocol, mirror images.
+      The first agent-commerce protocol with <strong>on-chain single-block atomic 85/10/5 revenue split</strong>.
+      x402-native. Provider keeps 85% on every invoke. No top-ups, no wait, no middlemen.
     </p>
     <div class="hero-cta">
       <a class="btn btn-primary btn-lg" href="#paths">See both paths</a>
+      <a class="btn btn-secondary btn-lg" href="/guides/x402">See x402 in action</a>
       <a class="btn btn-secondary btn-lg" href="https://github.com/jecpdev/jecp-spec">Read the spec</a>
+    </div>
+
+    <!-- 3-step x402 flow -->
+    <div class="x402-flow" aria-label="How an x402 invoke settles">
+      <div class="x402-step">
+        <div class="x402-step-num">1</div>
+        <div class="x402-step-body">
+          <strong>Agent calls</strong>
+          <span>POST /v1/invoke with capability + action.</span>
+        </div>
+      </div>
+      <div class="x402-arrow" aria-hidden="true">&rarr;</div>
+      <div class="x402-step">
+        <div class="x402-step-num">2</div>
+        <div class="x402-step-body">
+          <strong>402 + x402 challenge</strong>
+          <span>Hub returns price; SDK signs EIP-3009 USDC authorization.</span>
+        </div>
+      </div>
+      <div class="x402-arrow" aria-hidden="true">&rarr;</div>
+      <div class="x402-step">
+        <div class="x402-step-num">3</div>
+        <div class="x402-step-body">
+          <strong>On-chain split, 1 block</strong>
+          <span>Splitter contract pays Provider 85% + Hub 10% + Network 5%.</span>
+        </div>
+      </div>
     </div>
     <div class="hero-install" style="margin:24px 0 8px;display:inline-flex;align-items:center;gap:12px;padding:10px 16px;background:#0f172a;color:#e2e8f0;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:14px">
       <span style="color:#64748b;user-select:none">$</span>
@@ -147,6 +174,51 @@
     <p class="cap-footnote" style="margin-top:32px;text-align:center">
       Both sides use the same JECP protocol. Both sides settle through the same Hub.
       <strong>Some teams do both.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ─── 1.7 x402 MOAT ─── -->
+<section class="section" id="x402">
+  <div class="container">
+    <span class="section-eyebrow">x402-native · Spec v1.1</span>
+    <h2 class="section-title">Three things only JECP does at the protocol layer.</h2>
+    <p class="hero-sub" style="margin-bottom:32px">
+      The 85/10/5 split is not a policy. It is a Solidity contract on Base.
+      Every paid invoke either splits on-chain in a single block, or it doesn't settle at all.
+    </p>
+    <div class="problem-grid">
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>85% to the developer</h3>
+        <p>The Splitter contract pays the Provider 85% on every invoke — Hub 10%, Network reserve 5%. Enforced in Solidity, not in a Stripe dashboard. Stripe Connect tops out around 88% gross only after T+2 bank settlement; JECP delivers it on-chain in roughly 2 seconds.</p>
+        <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
+          → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Spec §4</a> ·
+          <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">jecp-contracts</a>
+        </p>
+      </div>
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>x402-native</h3>
+        <p>USDC on Base, EIP-3009 <code>transferWithAuthorization</code>, x402.org facilitator. The agent's wallet pre-funds in USDC once and pays per invoke — no Stripe Checkout, no human-in-the-loop top-ups, no recurring approvals. SDK <code>mode: 'auto'</code> attempts x402 from the first 402 if a Base signer is configured.</p>
+        <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
+          → <a href="/guides/x402" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Quickstart</a> ·
+          <a href="https://www.npmjs.com/package/@jecpdev/sdk" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">@jecpdev/sdk v0.8.2+</a>
+        </p>
+      </div>
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>Single-block atomic, no Hub custody</h3>
+        <p>Provider EIP-712-signs <code>register()</code> directly. The Hub holds an AWS-KMS RELAYER key for gas only — it cannot move funds. Settlement pulls and splits in two transactions in the same block via the x402.org facilitator. If the split fails, nothing settles.</p>
+        <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
+          → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Spec §4</a> ·
+          <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">JecpSplitter.sol</a>
+        </p>
+      </div>
+
+    </div>
+    <p class="cap-footnote" style="margin-top:32px">
+      Stripe wallet path stays operational and unchanged. x402 is opt-in, additive, and backward compatible.
     </p>
   </div>
 </section>
@@ -361,6 +433,8 @@ cd jecp-spec/spec
           <tr><td>Pre-auth budgets (Mandate)</td><td>—</td><td>—</td><td>△</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Tiered trust (Trust Gate)</td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Per-call billing</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
+          <tr><td>On-chain atomic revenue split</td><td>—</td><td>—</td><td>— (T+2 off-chain)</td><td>—</td><td class="hl">✓ single-block 85/10/5</td></tr>
+          <tr><td>x402-native (USDC/Base)</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Multi-vendor by design</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Open spec (RFC 2119)</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
         </tbody>
@@ -668,6 +742,34 @@ export const POST = provider.createHandler(async (req) =&gt; {
 
     </div>
     <p class="cap-footnote">No subscription. Pay-per-call. Balance never expires.</p>
+
+    <div class="quickstart" style="margin-top:48px;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:28px">
+      <div class="quickstart-title" style="color:#06b6d4;font-weight:700;margin-bottom:12px">x402 mode — pay direct from a Base USDC wallet</div>
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:14.5px;line-height:1.6">
+        Skip Stripe top-ups entirely. Fund a Base wallet with USDC, point the SDK at it, and every invoke settles on-chain. Roughly <strong style="color:#06b6d4">~1% in network gas</strong> instead of the 5.9% Stripe markup on small top-ups. Provider still keeps 85% — just paid in a single block.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;font-size:13px">
+        <div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">~1%</div>
+          <div style="color:#94a3b8">on-chain gas, no payment markup</div>
+        </div>
+        <div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">maxPerCallUsdc</div>
+          <div style="color:#94a3b8">SDK refuses to sign over your cap (v0.8.2+)</div>
+        </div>
+        <div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">maxPerHourUsdc</div>
+          <div style="color:#94a3b8">rolling-hour spend cap before signing</div>
+        </div>
+        <div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">single-block</div>
+          <div style="color:#94a3b8">85/10/5 settles on Base in ~2s</div>
+        </div>
+      </div>
+      <div style="margin-top:18px">
+        <a href="/guides/x402" style="color:#06b6d4;text-decoration:none;font-size:14px;font-family:'JetBrains Mono',monospace">→ /guides/x402 (4-command quickstart)</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -726,6 +828,8 @@ Backed by 100% open spec. No vendor lock-in by design.</pre>
         <h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate-500);margin:0 0 12px">Resources</h4>
         <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-spec">Spec</a>
         <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-server">Reference impl</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://github.com/jecpdev/jecp-contracts">Splitter contract</a>
+        <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="/guides/x402">x402 quickstart</a>
         <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/.well-known/agent-guide.json">Agent Guide (JSON)</a>
         <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/llms.txt">llms.txt</a>
         <a style="display:block;margin-bottom:8px;text-decoration:none;color:var(--slate-700);font-size:14px" href="https://jecp.dev/v1/capabilities">Live catalog</a>
