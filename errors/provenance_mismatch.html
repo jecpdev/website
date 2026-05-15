@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROVENANCE_MISMATCH — JECP errors</title>
+<meta name="description" content="The Hub rejected the mandate.provenance_hash. Subcauses: wire_malformed, clock_skew, hmac_mismatch, nonce_replay, v1 legacy paths. Fix in 30s.">
+<link rel="canonical" href="https://jecp.dev/errors/provenance_mismatch">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 18px; margin: 28px 0 10px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .err-container th, .err-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .err-container th { background: #f8fafc; font-weight: 600; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / provenance_mismatch</p>
+  <h1>PROVENANCE_MISMATCH</h1>
+  <p class="status-line"><span class="badge">HTTP 403</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">§3.1</a> + <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/02-authentication.md">§5</a></p>
+
+  <h2>What it means</h2>
+  <p>The Hub rejected the <code>mandate.provenance_hash</code> value you sent. The hash was either malformed, computed against the wrong inputs, signed with the wrong key, used a stale timestamp, or replays a nonce the Hub has already seen.</p>
+
+  <h2>Subcause registry</h2>
+  <p>The Hub's response body carries <code>error.details.subcause</code>. Use it to diagnose:</p>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "PROVENANCE_MISMATCH",
+    "message": "...",
+    "details": {
+      "subcause": "&lt;one of the values below&gt;",
+      "documentation_url": "https://jecp.dev/errors/provenance_mismatch#&lt;subcause&gt;",
+      "drift_seconds": "&lt;signed integer, only when subcause = clock_skew&gt;"
+    }
+  }
+}</code></pre>
+
+  <h3 id="wire_malformed">wire_malformed</h3>
+  <p>The <code>provenance_hash</code> value does not parse as either valid form:</p>
+  <ul>
+    <li><strong>v1:</strong> 64 lowercase hex characters</li>
+    <li><strong>v2:</strong> <code>v2:&lt;unix_seconds&gt;:&lt;nonce_hex_&gt;=16&gt;:&lt;hmac_hex_64&gt;</code></li>
+  </ul>
+  <p><strong>Fix in 30s:</strong> regenerate via the SDK helper. Don't hand-roll the wire format.</p>
+  <pre><code>import { computeProvenanceV2 } from '@jecpdev/sdk';
+
+const hash = computeProvenanceV2({ apiKey, agentId });
+//      ^^^^ ready for mandate.provenance_hash</code></pre>
+
+  <h3 id="clock_skew">clock_skew</h3>
+  <p>The v2 timestamp is more than 300 seconds away from the Hub's clock. The <code>details.drift_seconds</code> field is signed: positive means the Agent's clock is <em>ahead</em>, negative means <em>behind</em>.</p>
+  <p><strong>Fix in 30s:</strong> synchronize NTP on the Agent host.</p>
+  <pre><code># Linux
+sudo timedatectl set-ntp true
+# macOS
+sudo sntp -sS pool.ntp.org</code></pre>
+
+  <h3 id="hmac_mismatch">hmac_mismatch</h3>
+  <p>The HMAC tag in the wire string does not match the value the Hub recomputes from <code>(api_key, agent_id, timestamp, nonce)</code>. The most common cause is that the <code>apiKey</code> you signed with is different from the one the Hub authenticated against.</p>
+  <p><strong>Fix in 30s:</strong> confirm the api_key the Agent signs with is identical to the one in <code>mandate.api_key</code>. Common gotchas:</p>
+  <ul>
+    <li>You rotated the key but kept signing with the old one beyond the grace period.</li>
+    <li>You set <code>mandate.api_key</code> from one env var and <code>computeProvenanceV2({ apiKey })</code> from another.</li>
+    <li>The Agent's process has the wrong env var loaded.</li>
+  </ul>
+
+  <h3 id="nonce_replay">nonce_replay</h3>
+  <p>The <code>(agent_id, nonce)</code> tuple has already been observed within the past 600 seconds. Nonces are single-use.</p>
+  <p><strong>Fix in 30s:</strong> regenerate the <code>provenance_hash</code> per request. Never reuse a nonce. <code>computeProvenanceV2({ apiKey, agentId })</code> defaults to a fresh <code>randomBytes(16).toString('hex')</code> per call — if you're seeing this error you're probably caching the result. Move the call into the request hot path.</p>
+
+  <h3 id="v1_legacy_mismatch">v1_legacy_mismatch</h3>
+  <p>You sent a v1 (SHA-256) <code>provenance_hash</code> and the Hub recomputed a different value. Most often, the Agent's <code>total_calls</code> counter you signed against has drifted from the Hub's view (e.g., another concurrent invocation incremented it).</p>
+  <p><strong>Fix in 30s:</strong> migrate to v2. v1 cannot be made replay-safe and is being sunset 2026-11-01.</p>
+
+  <h3 id="v1_unavailable">v1_unavailable</h3>
+  <p>You sent a v1 <code>provenance_hash</code> for an Agent whose plaintext <code>api_key</code> is no longer stored on the Hub (after key rotation, the plaintext column is NULLed and only the bcrypt hash remains). v1 cannot be computed without the plaintext.</p>
+  <p><strong>Fix in 30s:</strong> migrate to v2. Migration is mandatory for any Agent that has rotated its key.</p>
+
+  <h2>Migration recipe (v1 → v2)</h2>
+  <ol>
+    <li>Upgrade <code>@jecpdev/sdk</code> to <code>0.7.0</code> or later.</li>
+    <li>Replace <code>computeProvenanceV1(...)</code> with <code>computeProvenanceV2({ apiKey, agentId })</code>.</li>
+    <li>Confirm — issue one call, expect <code>200 OK</code>. If you get a <code>clock_skew</code> subcause, sync NTP.</li>
+  </ol>
+
+  <h2>Sunset schedule</h2>
+  <table>
+    <thead><tr><th>Date</th><th>What changes</th></tr></thead>
+    <tbody>
+      <tr><td>2026-05-10</td><td>v2 stable. v1 deprecated. SDKs ship <code>computeProvenanceV2</code>.</td></tr>
+      <tr><td>2026-08-01</td><td>Hubs MUST attach <code>Deprecation: true</code> + <code>Sunset</code> response headers when v1 is accepted. Treat these headers as the migration alarm.</td></tr>
+      <tr><td>2026-11-01</td><td>v1 verifier removal. Hubs MUST reject v1 wire format with <code>PROVENANCE_MISMATCH</code> + <code>subcause: v1_legacy_mismatch</code> (or <code>v1_unavailable</code>).</td></tr>
+    </tbody>
+  </table>
+
+  <p class="related">Reference: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/error-catalog/PROVENANCE_MISMATCH.md">spec/error-catalog/PROVENANCE_MISMATCH.md</a>, <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/02-authentication.md#5.8">spec §5.8 migration recipe</a>.</p>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INSUFFICIENT_BUDGET — JECP errors</title>
+<meta name="description" content="The Hub returned 402 because mandate.budget was below the action's quoted price. Raise the mandate budget or pick a cheaper action.">
+<link rel="canonical" href="https://jecp.dev/errors/insufficient_budget">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 16px; margin: 24px 0 8px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / insufficient_budget</p>
+  <h1>INSUFFICIENT_BUDGET</h1>
+  <p class="status-line"><span class="badge">HTTP 402</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/01-protocol.md">§1</a> · mandate</p>
+
+  <h2>What it means</h2>
+  <p>The Agent's wallet has funds, but the <code>mandate.budget</code> cap on this specific request was set below the action's quoted price. The Hub honors the mandate as the per-call ceiling: even if the wallet could pay, the Agent has explicitly said "don't spend more than X on this call."</p>
+  <p>This is distinct from <a href="/errors/insufficient_balance">INSUFFICIENT_BALANCE</a> (the wallet itself is empty/short).</p>
+
+  <h2>Response envelope</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "INSUFFICIENT_BUDGET",
+    "message": "mandate.budget $0.001 USDC below action price $0.005 USDC",
+    "details": {
+      "budget_usdc": "0.001",
+      "required_usdc": "0.005",
+      "documentation_url": "https://jecp.dev/errors/insufficient_budget"
+    }
+  }
+}</code></pre>
+
+  <h2>Fix in 30s</h2>
+
+  <h3>Raise the budget</h3>
+  <pre><code>jecp invoke jobdonebot/content-factory translate \
+  --input '{"text":"Hello","target_lang":"JA"}' \
+  --budget 1.00     # raise from default to $1 USDC</code></pre>
+
+  <p>In SDK code:</p>
+  <pre><code>await client.invoke({
+  capability: 'jobdonebot/content-factory',
+  action: 'translate',
+  input: { text: 'Hello', target_lang: 'JA' },
+  mandate: { budget: 1.00 },
+});</code></pre>
+
+  <h3>Or pick a cheaper action</h3>
+  <p>Inspect alternatives in the catalog:</p>
+  <pre><code>jecp catalog --json | jq '.capabilities[].actions[]
+  | {full: "\(.capability_id).\(.id)", price: .pricing.base}
+  | select(.price &lt; "$0.005")'</code></pre>
+
+  <h2>Why the Hub honors the mandate even when balance is OK</h2>
+  <p>The mandate is the Agent's intent declaration — a circuit-breaker for autonomy. A long-running workflow that spawns many invocations may have a wallet with thousands of dollars, but the operator wants each individual call capped so a runaway loop can't drain the wallet. The Hub enforces the cap precisely because the wallet check alone is insufficient.</p>
+
+  <p>Setting <code>mandate.budget</code> to a generous-but-finite value (e.g. 100× the expected price) is the standard pattern for production workloads. Setting it equal to wallet balance defeats the purpose.</p>
+
+  <p class="related">Related: <a href="/errors/insufficient_balance">INSUFFICIENT_BALANCE</a>, <a href="/guides/mandate">mandate guide</a>.</p>
+</main>
+
+</body>
+</html>

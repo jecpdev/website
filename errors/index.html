@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error catalog — JECP</title>
+<meta name="description" content="JECP error code reference. Every error returned by a v1.0+ Hub deep-links here, with HTTP status, recovery action, and migration recipe.">
+<link rel="canonical" href="https://jecp.dev/errors">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .catalog-container { max-width: 880px; margin: 0 auto; padding: 64px 24px 96px; }
+  .catalog-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .catalog-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .catalog-container h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; }
+  .catalog-container .subtitle { font-size: 18px; color: var(--slate-700); margin: 0 0 48px; }
+  .catalog-container h2 { font-size: 22px; margin: 48px 0 16px; }
+  .catalog-container p { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .catalog-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .catalog-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .catalog-container th, .catalog-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .catalog-container th { background: #f8fafc; font-weight: 600; }
+  .catalog-container td a { color: var(--cyan-dark); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .catalog-container td a:hover { text-decoration: underline; }
+  .catalog-container .status-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .catalog-container .status-4xx { background: #fef3c7; color: #92400e; }
+  .catalog-container .status-403 { background: #fee2e2; color: #991b1b; }
+  .catalog-container .status-5xx { background: #e0e7ff; color: #3730a3; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/#what">What</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a><a href="https://github.com/jecpdev">GitHub</a></nav>
+</div></header>
+
+<main class="catalog-container">
+  <p class="breadcrumb">/ Errors</p>
+  <h1>Error catalog</h1>
+  <p class="subtitle">Every error returned by a conformant JECP Hub carries a <code>documentation_url</code> that resolves to this catalog. Each entry below documents the HTTP status, when the error fires, structured <code>details</code> fields, and the 30-second recovery action.</p>
+
+  <h2>How to read these pages</h2>
+  <p>Errors return as a wrapped envelope per spec <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">§3</a>:</p>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "URL_BLOCKED_SSRF",
+    "message": "...",
+    "details": {
+      "field": "endpoint_url",
+      "reason": "resolved_to_deny_cidr",
+      "documentation_url": "https://jecp.dev/errors/url_blocked_ssrf#resolved_to_deny_cidr"
+    }
+  }
+}</code></pre>
+  <p>Some errors carry sub-categories (<code>subcause</code>, <code>reason</code>). Their <code>documentation_url</code> deep-links to the relevant anchor on the page below — the recovery action there is the specific one for that branch.</p>
+
+  <h2>Catalog</h2>
+  <table>
+    <thead>
+      <tr><th>Code</th><th>HTTP</th><th>What it means</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/errors/capability_deprecated">capability_deprecated</a></td>
+        <td><span class="status-pill status-4xx">410</span></td>
+        <td>The capability is past its sunset date. <code>details.successor</code> names the replacement when one exists.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/duplicate_request">duplicate_request</a></td>
+        <td><span class="status-pill status-4xx">409</span></td>
+        <td>The idempotency <code>id</code> was reused for a different request body. Use a fresh <code>id</code> per logical request.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/input_schema_violation">input_schema_violation</a></td>
+        <td><span class="status-pill status-4xx">400</span></td>
+        <td>The action input failed JSON Schema validation. <code>details.errors[]</code> lists every failed assertion.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/insufficient_balance">insufficient_balance</a></td>
+        <td><span class="status-pill status-4xx">402</span></td>
+        <td>The Agent's wallet balance is below the action's quoted price. Top up via <code>jecp topup</code> or fund the Base wallet.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/insufficient_budget">insufficient_budget</a></td>
+        <td><span class="status-pill status-4xx">402</span></td>
+        <td>The <code>mandate.budget</code> cap was below the action's quoted price. Raise the mandate budget or pick a cheaper action.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/provenance_mismatch">provenance_mismatch</a></td>
+        <td><span class="status-pill status-403">403</span></td>
+        <td>The <code>mandate.provenance_hash</code> failed verification. Common subcauses: clock skew, nonce replay, v1/v2 wire mismatch.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/rate_limited">rate_limited</a></td>
+        <td><span class="status-pill status-4xx">429</span></td>
+        <td>The Agent exceeded the per-IP / per-Agent rate limit. <code>details.retry_after_seconds</code> mirrors the <code>Retry-After</code> header.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/unsupported_media_type">unsupported_media_type</a></td>
+        <td><span class="status-pill status-4xx">415</span></td>
+        <td>The request <code>Content-Type</code> was not <code>application/json</code>. Send valid JSON with the right header.</td>
+      </tr>
+      <tr>
+        <td><a href="/errors/url_blocked_ssrf">url_blocked_ssrf</a></td>
+        <td><span class="status-pill status-4xx">422</span></td>
+        <td>An Agent-controlled URL hit the SSRF deny-list. Branches by <code>details.reason</code>: <code>scheme</code> / <code>resolved_to_deny_cidr</code> / etc.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Where these come from</h2>
+  <p>The catalog mirrors the canonical spec definition in <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">jecp-spec / 03-errors.md</a> and the reference catalog files at <a href="https://github.com/jecpdev/jecp-spec/tree/main/spec/error-catalog">spec/error-catalog/</a>. If a page here disagrees with the spec, the spec wins — please <a href="https://github.com/jecpdev/website/issues/new">file an issue</a>.</p>
+
+  <h2>Reporting issues</h2>
+  <p>If the recovery action listed here didn't work, or you hit an error code not listed above, open an issue at <a href="https://github.com/jecpdev/website/issues">github.com/jecpdev/website/issues</a> with the full <code>error</code> envelope from the response body. Don't redact <code>details</code> — that's where the fix usually is.</p>
+</main>
+
+</body>
+</html>

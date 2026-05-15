@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAPABILITY_DEPRECATED — JECP errors</title>
+<meta name="description" content="The Hub returned 410 because the capability is past its sunset date. The details.successor field, when set, names the replacement capability.">
+<link rel="canonical" href="https://jecp.dev/errors/capability_deprecated">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 16px; margin: 24px 0 8px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / capability_deprecated</p>
+  <h1>CAPABILITY_DEPRECATED</h1>
+  <p class="status-line"><span class="badge">HTTP 410</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">§3</a> · v1.0.2 K2.3</p>
+
+  <h2>What it means</h2>
+  <p>The capability you invoked is past its sunset date and the Provider has chosen to stop serving it. The Hub blocks new invocations to prevent silent data drift — older clients that haven't migrated should fail loudly here, not get unexpected behavior or stale responses.</p>
+
+  <p>This is distinct from <code>CAPABILITY_NOT_FOUND</code> (404, the capability id never existed) and from a transient <code>PROVIDER_UNREACHABLE</code> (502, Provider is down but capability is still active).</p>
+
+  <h2>Response envelope</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "CAPABILITY_DEPRECATED",
+    "message": "capability 'oldns/translate' was sunset on 2026-01-15",
+    "details": {
+      "capability": "oldns/translate",
+      "sunset_at": "2026-01-15T00:00:00Z",
+      "successor": "newns/translate",
+      "documentation_url": "https://jecp.dev/errors/capability_deprecated"
+    }
+  }
+}</code></pre>
+
+  <p>The <code>successor</code> field is set when the Provider declared a replacement in their <code>deprecation</code> block. It may be absent when the capability has been retired entirely.</p>
+
+  <h2>Fix in 30s</h2>
+
+  <h3>When successor is set</h3>
+  <ol>
+    <li>Stop calling the old capability id.</li>
+    <li>Update your client code to call <code>details.successor</code> instead.</li>
+    <li>Re-issue the invocation. The successor MAY have a different <code>input_schema</code> — check <code>jecp catalog &lt;successor&gt;</code> before deploying.</li>
+  </ol>
+
+  <h3>When successor is absent</h3>
+  <p>The capability has been retired without replacement. Browse <a href="https://jecp.dev/catalog">/catalog</a> for alternatives, or contact the Provider's <code>support_email</code> (visible via <code>jecp catalog --json &lt;old-namespace&gt;</code>).</p>
+
+  <h2>Sunset signaling before 410</h2>
+  <p>Per spec §1, Hubs MUST attach two response headers during the deprecation window (typically 30–180 days before sunset):</p>
+  <pre><code>Deprecation: true
+Sunset: Fri, 15 Jan 2026 00:00:00 GMT</code></pre>
+  <p>If your client reads these proactively you'll see the warning well before requests start returning 410. Treat any successful response that carries <code>Deprecation: true</code> as a migration alarm — the success itself is on borrowed time.</p>
+
+  <p class="related">Related: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-manifest.md">spec §4 manifest deprecation block</a>.</p>
+</main>
+
+</body>
+</html>

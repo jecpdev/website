@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URL_BLOCKED_SSRF — JECP errors</title>
+<meta name="description" content="The Hub refused to dereference an Agent-controlled URL because it hit the JECP SSRF deny-list. The details.reason field disambiguates the policy branch.">
+<link rel="canonical" href="https://jecp.dev/errors/url_blocked_ssrf">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 18px; margin: 28px 0 10px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .err-container th, .err-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .err-container th { background: #f8fafc; font-weight: 600; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / url_blocked_ssrf</p>
+  <h1>URL_BLOCKED_SSRF</h1>
+  <p class="status-line"><span class="badge">HTTP 422</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/02-authentication.md">§9.7</a> · ADR-0002</p>
+
+  <h2>What it means</h2>
+  <p>The Hub refused to dereference an Agent-controlled URL because the URL hits the JECP SSRF deny-list. The URL itself was structurally well-formed — a valid HTTP URL syntactically — but its scheme, host, or resolved IP violated the policy specified in spec §9.7.1.</p>
+  <p>This is a security policy rejection, not a wire-format validation failure (<a href="/errors/input_schema_violation">INPUT_SCHEMA_VIOLATION</a>) and not a transient transport error (<code>PROVIDER_UNREACHABLE</code>).</p>
+
+  <h2>When it fires</h2>
+  <table>
+    <thead><tr><th>Field</th><th>Where it's accepted</th><th>Where the deref happens</th></tr></thead>
+    <tbody>
+      <tr><td><code>provider.endpoint_url</code></td><td><code>POST /v1/providers/register</code>, <code>POST /v1/providers/verify-dns</code></td><td><code>POST /v1/invoke</code> (sync forward + SSE forward)</td></tr>
+      <tr><td><code>webhook.destination_url</code></td><td><code>POST /v1/subscriptions</code></td><td>webhook delivery loop</td></tr>
+      <tr><td><code>mandate.callback_url</code></td><td><code>POST /v1/invoke</code></td><td>post-completion HTTP POST</td></tr>
+    </tbody>
+  </table>
+  <p>Conformant Hubs run the validation pipeline at BOTH register-time (so legitimate Providers / Agents get fast feedback) AND deref-time (so DNS-rebinding between register and use is caught).</p>
+
+  <h2>Example response</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "URL_BLOCKED_SSRF",
+    "message": "URL blocked by SSRF policy",
+    "details": {
+      "field": "endpoint_url",
+      "blocked_url": "https://internal.dev/api/inbound",
+      "reason": "resolved_to_deny_cidr",
+      "documentation_url": "https://jecp.dev/errors/url_blocked_ssrf#resolved_to_deny_cidr"
+    }
+  }
+}</code></pre>
+
+  <h2>Reason registry</h2>
+
+  <h3 id="parse_error">parse_error</h3>
+  <p>URL did not parse per RFC 3986. <strong>Fix:</strong> send a syntactically valid HTTP URL. Most often this is a missing scheme (<code>example.com</code> instead of <code>https://example.com</code>) or an unescaped fragment.</p>
+
+  <h3 id="scheme">scheme</h3>
+  <p>Scheme was not <code>https</code> (or <code>http</code> outside test mode). <strong>Fix:</strong> use <code>https://</code> in production. <code>http://</code> is rejected even when the host is otherwise valid — there's no operator override for this in the public Hub.</p>
+
+  <h3 id="host_syntax">host_syntax</h3>
+  <p>Host was percent-encoded, contained credentials (<code>user:pass@</code>), or used a non-public TLD with no DNS resolution. <strong>Fix:</strong> normalize to plain ASCII / IDN-decoded form. Strip embedded credentials — JECP uses <code>X-API-Key</code>, not basic auth.</p>
+
+  <h3 id="resolved_to_deny_cidr">resolved_to_deny_cidr</h3>
+  <p>Hostname resolved to a deny-list CIDR (RFC1918, loopback, link-local, CGNAT, IPv6 ULA, etc.). <strong>Fix:</strong> use a domain name that resolves to a public IP. For staging integration with private hosts, ask the Hub operator to extend the allowlist for your namespace.</p>
+
+  <h3 id="dns_resolve_failed">dns_resolve_failed</h3>
+  <p>The hostname did not resolve (NXDOMAIN, NODATA, or all resolvers timed out). <strong>Fix:</strong> confirm the A/AAAA records exist and are reachable from a public DNS server (<code>dig @8.8.8.8 +short &lt;host&gt;</code>). Wildcard DNS providers sometimes drop sub-domain queries — verify your records actually publish.</p>
+
+  <h3 id="connect_pin_violation">connect_pin_violation</h3>
+  <p>The resolver returned a different address at <code>connect()</code> than at validation (DNS rebinding). <strong>Fix:</strong> stop using TTL-1 / split-horizon DNS for the affected hostname. Conformant Hubs implement IP-pinning at the HTTP-client layer to prevent the rebinding window from being exploitable.</p>
+
+  <h2>For async deref paths (webhook delivery)</h2>
+  <p>The Hub does not return this envelope synchronously — the originating subscription request already returned 200. Instead the Hub marks the outbox row <code>abandoned_at = NOW(), reason = 'SSRF_DENIED'</code>, logs the rejection in <code>ssrf_attempts</code> (per §9.7.1.4), and stops retrying. Hub operators surface the audit trail via dashboard or webhook delivery report endpoints.</p>
+
+  <p class="related">Reference: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/error-catalog/URL_BLOCKED_SSRF.md">spec/error-catalog/URL_BLOCKED_SSRF.md</a>, <a href="https://github.com/jecpdev/jecp-spec/blob/main/adr/0002-ssrf-defense-architecture.md">ADR-0002</a>, conformance tests <code>JECP-OPS-MUST-SSRF-*</code>.</p>
+</main>
+
+</body>
+</html>

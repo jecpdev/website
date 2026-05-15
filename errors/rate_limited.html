@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RATE_LIMITED — JECP errors</title>
+<meta name="description" content="The Hub returned 429 because the Agent (or its IP) exceeded the rate limit. Use details.retry_after_seconds to back off correctly.">
+<link rel="canonical" href="https://jecp.dev/errors/rate_limited">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 16px; margin: 24px 0 8px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / rate_limited</p>
+  <h1>RATE_LIMITED</h1>
+  <p class="status-line"><span class="badge">HTTP 429</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">§3</a> · v1.0.2 K2.4</p>
+
+  <h2>What it means</h2>
+  <p>The Agent (or its source IP) exceeded the per-window request quota. Hubs apply rate limits at two layers — per-Agent (to protect the protocol from runaway clients) and per-IP (to protect from credential-stuffing scans). Either limit can trigger this code; from the caller's perspective the recovery is the same.</p>
+
+  <h2>Response envelope</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "rate limit exceeded; retry after 12s",
+    "details": {
+      "retry_after_seconds": 12,
+      "documentation_url": "https://jecp.dev/errors/rate_limited"
+    }
+  }
+}</code></pre>
+
+  <p>The Hub also sets the standard <code>Retry-After</code> response header to the same integer. Some SDKs parse only the header, some parse only the body; spec §3 K2.4 requires both for parity.</p>
+
+  <h2>Fix in 30s</h2>
+  <p>Sleep for at least <code>retry_after_seconds</code>, then retry. The <code>@jecpdev/sdk</code> handles this automatically — see the <code>retry</code> module. For manual implementations:</p>
+
+  <h3>Node</h3>
+  <pre><code>async function withRateLimitBackoff(fn) {
+  for (let attempt = 0; attempt &lt; 5; attempt++) {
+    const res = await fn();
+    if (res.status !== 429) return res;
+    const sec = parseInt(res.headers.get('retry-after') ?? '1', 10);
+    await new Promise((r) =&gt; setTimeout(r, sec * 1000));
+  }
+  throw new Error('exhausted retries');
+}</code></pre>
+
+  <h2>Don't tight-loop on 429</h2>
+  <p>Retrying immediately without honoring <code>retry_after_seconds</code> will not work — the Hub uses a sliding window, so an immediate retry counts toward the same budget that just got rejected. Worse, repeated immediate retries from a single IP can trip the per-IP limit and lock you out longer. The Hub's behavior is intentional: the response carries the exact wait time so well-behaved clients can resume cleanly.</p>
+
+  <h2>If 429 is sustained</h2>
+  <p>If you're consistently rate-limited even with proper back-off:</p>
+  <ul>
+    <li>Check your invocation pattern — are you sending one request per work item when you could batch?</li>
+    <li>If you're a Pro tier customer, the per-Agent limit is higher than free. Confirm your tier with <code>jecp status</code>.</li>
+    <li>If your workload genuinely exceeds the published limits, contact <code>hello@jecp.dev</code> to discuss raising them.</li>
+  </ul>
+
+  <p class="related">Related: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md#rate-limits">spec §3 rate limits</a>, <a href="/errors/insufficient_balance">INSUFFICIENT_BALANCE</a>.</p>
+</main>
+
+</body>
+</html>

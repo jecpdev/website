@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INPUT_SCHEMA_VIOLATION — JECP errors</title>
+<meta name="description" content="The Hub returned 400 because the action input failed the capability's published JSON Schema. details.errors[] enumerates every assertion that failed.">
+<link rel="canonical" href="https://jecp.dev/errors/input_schema_violation">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .err-container { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .err-container .breadcrumb { font-size: 13px; color: var(--slate-500); margin: 0 0 24px; }
+  .err-container .breadcrumb a { color: var(--slate-700); text-decoration: none; }
+  .err-container h1 { font-size: 36px; line-height: 1.2; margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line { font-size: 14px; color: var(--slate-500); margin: 0 0 32px; font-family: 'JetBrains Mono', monospace; }
+  .err-container .status-line .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; margin-right: 8px; }
+  .err-container h2 { font-size: 22px; margin: 40px 0 12px; }
+  .err-container h3 { font-size: 16px; margin: 24px 0 8px; font-family: 'JetBrains Mono', monospace; color: var(--slate-900); }
+  .err-container p, .err-container li { font-size: 16px; line-height: 1.75; color: var(--slate-700); }
+  .err-container ul, .err-container ol { padding-left: 24px; }
+  .err-container code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .err-container pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.65; }
+  .err-container pre code { background: transparent; padding: 0; color: inherit; }
+  .err-container table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .err-container th, .err-container td { border-bottom: 1px solid var(--slate-200); padding: 10px 12px; text-align: left; vertical-align: top; }
+  .err-container th { background: #f8fafc; font-weight: 600; }
+  .err-container .related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--slate-200); font-size: 14px; }
+  .err-container .related a { color: var(--cyan-dark); text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container nav">
+  <a href="/" class="brand"><svg class="logo" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="6" fill="#0f172a"/><path d="M8 12h16M8 16h12M8 20h8" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/></svg><span>JECP</span></a>
+  <nav class="nav-links"><a href="/errors">Errors</a><a href="/guides">Guides</a><a href="https://github.com/jecpdev/jecp-spec">Spec</a></nav>
+</div></header>
+
+<main class="err-container">
+  <p class="breadcrumb"><a href="/errors">Errors</a> / input_schema_violation</p>
+  <h1>INPUT_SCHEMA_VIOLATION</h1>
+  <p class="status-line"><span class="badge">HTTP 400</span>Spec: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/03-errors.md">§3.2</a> · v1.0.2 K2.5</p>
+
+  <h2>What it means</h2>
+  <p>The Hub parsed your request body as valid JSON, but the <code>input</code> field failed the capability's published <code>input_schema</code>. The Hub validates against the schema in the Provider's manifest (JSON Schema 2020-12 subset, per spec §4) before forwarding to the Provider — so the Provider never sees malformed input, and you get a precise error pointing at the failed field.</p>
+
+  <h2>Response envelope</h2>
+  <pre><code>{
+  "jecp": "1.0",
+  "status": "failed",
+  "error": {
+    "code": "INPUT_SCHEMA_VIOLATION",
+    "message": "input failed schema validation (2 errors)",
+    "details": {
+      "errors": [
+        {
+          "instance_path": "/text",
+          "schema_path": "/properties/text/maxLength",
+          "reason": "string is 6000 chars, max is 5000"
+        },
+        {
+          "instance_path": "/target_lang",
+          "schema_path": "/properties/target_lang/pattern",
+          "reason": "value 'EN-US' does not match pattern ^[a-z]{2}$"
+        }
+      ],
+      "documentation_url": "https://jecp.dev/errors/input_schema_violation"
+    }
+  }
+}</code></pre>
+
+  <h2>Fix in 30s</h2>
+  <p>Every entry in <code>details.errors[]</code> tells you exactly what failed:</p>
+  <table>
+    <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>instance_path</code></td><td>JSON pointer into your <em>input</em> (the value the Hub saw).</td></tr>
+      <tr><td><code>schema_path</code></td><td>JSON pointer into the <em>schema</em> (which assertion failed).</td></tr>
+      <tr><td><code>reason</code></td><td>Plain-text explanation suitable for surfacing to end users.</td></tr>
+    </tbody>
+  </table>
+  <p>Apply the per-error fix and re-issue the request. Don't trust just the human <code>message</code> field — when several assertions fail, the message lists the count but <code>errors[]</code> is the authoritative source.</p>
+
+  <h2>Where to find the schema</h2>
+  <pre><code>jecp catalog --json | jq '.capabilities[] | select(.full_id == "namespace/capability")'
+# or per-action:
+# .actions[] | select(.id == "action_id") | .input_schema</code></pre>
+  <p>The same schema is rendered on the Hub's web catalog at <code>/catalog/&lt;namespace&gt;/&lt;capability&gt;</code> with examples from the manifest.</p>
+
+  <h2>Why the Hub validates before forwarding</h2>
+  <p>The Provider's HTTPS endpoint stays oblivious to invalid input — fewer crash classes in the Provider runtime, no half-charged invocations from validation 500s mid-call, and a uniform error shape across every Provider on the Hub. Per spec §3.2, the failed-assertion array is mandatory and must use these three exact field names; a Hub that does not return them is non-conformant.</p>
+
+  <p class="related">Related: <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-manifest.md">spec §4 manifest input_schema</a>, <a href="/errors/unsupported_media_type">UNSUPPORTED_MEDIA_TYPE</a> (body wasn't JSON at all).</p>
+</main>
+
+</body>
+</html>
