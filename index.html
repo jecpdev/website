@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JECP — Joint Execution &amp; Commerce Protocol</title>
-<meta name="description" content="x402-native agent commerce protocol with on-chain single-block atomic 85/10/5 revenue split. Provider keeps 85% on every invoke. No top-ups, no middlemen. Apache 2.0. Spec v1.1.">
+<meta name="description" content="x402-native agent commerce protocol with on-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen. Apache 2.0. Spec v1.0-stable.">
 <meta name="keywords" content="agent commerce protocol, x402, USDC, Base, on-chain revenue split, B2A, monetize AI agent API, agent payment, JECP, MCP payment, LLM agent billing">
 
 <!-- OGP -->
 <meta property="og:title" content="JECP — Revenue, when your customer isn't human.">
-<meta property="og:description" content="x402-native. On-chain single-block atomic 85/10/5 revenue split. Provider keeps 85% on every invoke. No top-ups, no middlemen.">
+<meta property="og:description" content="x402-native. On-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen.">
 <meta property="og:url" content="https://jecp.dev">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JECP">
@@ -17,7 +17,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JECP — Revenue, when your customer isn't human.">
-<meta name="twitter:description" content="x402-native agent commerce protocol. On-chain single-block atomic 85/10/5 split. Apache 2.0. Spec v1.1.">
+<meta name="twitter:description" content="x402-native agent commerce protocol. On-chain atomic on-chain 85/10/5 split (~3s typical). Apache 2.0. Spec v1.0-stable.">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
   "@type": "SoftwareApplication",
   "name": "JECP",
   "alternateName": "Joint Execution & Commerce Protocol",
-  "description": "x402-native open protocol for agent-to-service commerce. On-chain single-block atomic 85/10/5 revenue split via Splitter contract on Base. Discovery, execution, and per-call settlement with pre-authorized budgets.",
+  "description": "x402-native open protocol for agent-to-service commerce. On-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base) via Splitter contract on Base. Discovery, execution, and per-call settlement with pre-authorized budgets.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Cross-platform",
   "offers": {
@@ -76,11 +76,11 @@
   <div class="container">
     <span class="hero-eyebrow">
       <span class="dot"></span>
-      x402-native · Spec v1.1 · Apache 2.0
+      x402-native · Spec v1.0-stable · Apache 2.0
     </span>
     <h1 class="hero-title">Revenue, <em>when your customer isn't human.</em></h1>
     <p class="hero-sub">
-      The first agent-commerce protocol with <strong>on-chain single-block atomic 85/10/5 revenue split</strong>.
+      The first agent-commerce protocol with <strong>on-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base)</strong>.
       x402-native. Provider keeps 85% on every invoke. No top-ups, no wait, no middlemen.
     </p>
     <div class="hero-cta">
@@ -181,11 +181,11 @@
 <!-- ─── 1.7 x402 MOAT ─── -->
 <section class="section" id="x402">
   <div class="container">
-    <span class="section-eyebrow">x402-native · Spec v1.1</span>
+    <span class="section-eyebrow">x402-native · Spec v1.0-stable</span>
     <h2 class="section-title">Three things only JECP does at the protocol layer.</h2>
     <p class="hero-sub" style="margin-bottom:32px">
       The 85/10/5 split is not a policy. It is a Solidity contract on Base.
-      Every paid invoke either splits on-chain in a single block, or it doesn't settle at all.
+      Every paid invoke either splits on-chain (typically within ~3s on Base), or it doesn't settle at all. The invariant is binary — Provider, Hub, and Reserve all paid, or nothing settles.
     </p>
     <div class="problem-grid">
 
@@ -433,7 +433,7 @@ cd jecp-spec/spec
           <tr><td>Pre-auth budgets (Mandate)</td><td>—</td><td>—</td><td>△</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Tiered trust (Trust Gate)</td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Per-call billing</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td>On-chain atomic revenue split</td><td>—</td><td>—</td><td>— (T+2 off-chain)</td><td>—</td><td class="hl">✓ single-block 85/10/5</td></tr>
+          <tr><td>On-chain atomic revenue split</td><td>—</td><td>—</td><td>— (T+2 off-chain)</td><td>—</td><td class="hl">✓ atomic 85/10/5 (~3s)</td></tr>
           <tr><td>x402-native (USDC/Base)</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Multi-vendor by design</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Open spec (RFC 2119)</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
@@ -746,7 +746,7 @@ export const POST = provider.createHandler(async (req) =&gt; {
     <div class="quickstart" style="margin-top:48px;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:28px">
       <div class="quickstart-title" style="color:#06b6d4;font-weight:700;margin-bottom:12px">x402 mode — pay direct from a Base USDC wallet</div>
       <p style="margin:0 0 16px;color:#cbd5e1;font-size:14.5px;line-height:1.6">
-        Skip Stripe top-ups entirely. Fund a Base wallet with USDC, point the SDK at it, and every invoke settles on-chain. Roughly <strong style="color:#06b6d4">~1% in network gas</strong> instead of the 5.9% Stripe markup on small top-ups. Provider still keeps 85% — just paid in a single block.
+        Skip Stripe top-ups entirely. Fund a Base wallet with USDC, point the SDK at it, and every invoke settles on-chain. Roughly <strong style="color:#06b6d4">~1% in network gas</strong> instead of the 5.9% Stripe markup on small top-ups. Provider still keeps 85% — paid atomically (~3s typical on Base).
       </p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;font-size:13px">
         <div>
@@ -762,7 +762,7 @@ export const POST = provider.createHandler(async (req) =&gt; {
           <div style="color:#94a3b8">rolling-hour spend cap before signing</div>
         </div>
         <div>
-          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">single-block</div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">atomic (~3s)</div>
           <div style="color:#94a3b8">85/10/5 settles on Base in ~2s</div>
         </div>
       </div>
