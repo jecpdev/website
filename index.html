@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JECP — Joint Execution &amp; Commerce Protocol</title>
-<meta name="description" content="x402-native agent commerce protocol with on-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen. Apache 2.0. Spec v1.0-stable.">
+<meta name="description" content="x402-native agent commerce protocol with atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen. Apache 2.0. Spec v1.0-stable.">
 <meta name="keywords" content="agent commerce protocol, x402, USDC, Base, on-chain revenue split, B2A, monetize AI agent API, agent payment, JECP, MCP payment, LLM agent billing">
 
 <!-- OGP -->
 <meta property="og:title" content="JECP — Revenue, when your customer isn't human.">
-<meta property="og:description" content="x402-native. On-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen.">
+<meta property="og:description" content="x402-native. Atomic on-chain 85/10/5 revenue split (~3s typical on Base). Provider keeps 85% on every invoke. No top-ups, no middlemen.">
 <meta property="og:url" content="https://jecp.dev">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JECP">
@@ -17,7 +17,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JECP — Revenue, when your customer isn't human.">
-<meta name="twitter:description" content="x402-native agent commerce protocol. On-chain atomic on-chain 85/10/5 split (~3s typical). Apache 2.0. Spec v1.0-stable.">
+<meta name="twitter:description" content="x402-native agent commerce protocol. Atomic on-chain 85/10/5 split (~3s typical). Apache 2.0. Spec v1.0-stable.">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
   "@type": "SoftwareApplication",
   "name": "JECP",
   "alternateName": "Joint Execution & Commerce Protocol",
-  "description": "x402-native open protocol for agent-to-service commerce. On-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base) via Splitter contract on Base. Discovery, execution, and per-call settlement with pre-authorized budgets.",
+  "description": "x402-native open protocol for agent-to-service commerce. Atomic on-chain 85/10/5 revenue split (~3s typical on Base) via Splitter contract on Base. Discovery, execution, and per-call settlement with pre-authorized budgets.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Cross-platform",
   "offers": {
@@ -80,7 +80,7 @@
     </span>
     <h1 class="hero-title">Revenue, <em>when your customer isn't human.</em></h1>
     <p class="hero-sub">
-      The first agent-commerce protocol with <strong>on-chain atomic on-chain 85/10/5 revenue split (~3s typical on Base)</strong>.
+      The first agent-commerce protocol with <strong>atomic on-chain 85/10/5 revenue split (~3s typical on Base)</strong>.
       x402-native. Provider keeps 85% on every invoke. No top-ups, no wait, no middlemen.
     </p>
     <div class="hero-cta">
@@ -208,8 +208,8 @@
       </div>
 
       <div class="problem-card" style="border-left:3px solid var(--cyan)">
-        <h3>Single-block atomic, no Hub custody</h3>
-        <p>Provider EIP-712-signs <code>register()</code> directly. The Hub holds an AWS-KMS RELAYER key for gas only — it cannot move funds. Settlement pulls and splits in two transactions in the same block via the x402.org facilitator. If the split fails, nothing settles.</p>
+        <h3>Atomic split, no Hub custody</h3>
+        <p>Provider EIP-712-signs <code>register()</code> directly. The Hub holds an AWS-KMS RELAYER key for gas only — it cannot move funds. Settlement pulls and splits in two transactions landing in ≤2 Base blocks (~3s typical on Base) via the x402.org facilitator. The invariant is binary — Provider, Hub, and Reserve all paid, or nothing settles.</p>
         <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
           → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Spec §4</a> ·
           <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">JecpSplitter.sol</a>
