@@ -62,9 +62,11 @@
     <nav class="nav-links">
       <a href="#paths">Two paths</a>
       <a href="#x402">x402</a>
+      <a href="#trust">Trust</a>
       <a href="#beyond">Beyond payment</a>
       <a href="#agent-wallet">Agent</a>
       <a href="#provider">Provider</a>
+      <a href="#faq">FAQ</a>
       <a href="https://github.com/jecpdev/jecp-spec">Spec</a>
       <a href="https://github.com/jecpdev">GitHub</a>
     </nav>
@@ -110,8 +112,8 @@
       <div class="x402-step">
         <div class="x402-step-num">3</div>
         <div class="x402-step-body">
-          <strong>On-chain split, 1 block</strong>
-          <span>Splitter contract pays Provider 85% + Hub 10% + Network 5%.</span>
+          <strong>Two-phase on-chain split (~3s)</strong>
+          <span>Facilitator pulls USDC into the immutable Splitter (T+0); Hub keeper records the 85/10/5 attribution (T+~3s, ≤2 blocks, p99 ≤30s).</span>
         </div>
       </div>
     </div>
@@ -191,7 +193,7 @@
 
       <div class="problem-card" style="border-left:3px solid var(--cyan)">
         <h3>85% to the developer</h3>
-        <p>The Splitter contract pays the Provider 85% on every invoke — Hub 10%, Network reserve 5%. Enforced in Solidity, not in a Stripe dashboard. Stripe Connect tops out around 88% gross only after T+2 bank settlement; JECP delivers it on-chain in roughly 2 seconds.</p>
+        <p>The immutable Splitter contract attributes 85% of every invoke to the Provider — Hub 10%, Network reserve 5%. The ratio is constructor-fixed in Solidity, not configured in a Stripe dashboard. Stripe Connect tops out around 88% gross only after T+2 bank settlement; JECP records the on-chain attribution typically within ~3 seconds (≤2 blocks, p99 ≤30s).</p>
         <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
           → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Spec §4</a> ·
           <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">jecp-contracts</a>
@@ -208,8 +210,8 @@
       </div>
 
       <div class="problem-card" style="border-left:3px solid var(--cyan)">
-        <h3>Atomic split, no Hub custody</h3>
-        <p>Provider EIP-712-signs <code>register()</code> directly. The Hub holds an AWS-KMS RELAYER key for gas only — it cannot move funds. Settlement pulls and splits in two transactions landing in ≤2 Base blocks (~3s typical on Base) via the x402.org facilitator. The invariant is binary — Provider, Hub, and Reserve all paid, or nothing settles.</p>
+        <h3>Two-phase settlement, no Hub custody</h3>
+        <p>Provider EIP-712-signs <code>register()</code> directly. The x402.org facilitator is trust-minimized — it only pulls USDC into the immutable Splitter (T+0). A hardened Hub keeper (AWS KMS-backed, the only AUTHORIZED_SETTLER) then records the 85/10/5 attribution on-chain (T+~3s, ≤2 blocks, p99 ≤30s). The split ratio is constructor-fixed; even a compromised keeper EOA cannot change it.</p>
         <p style="font-size:13px;color:var(--slate-500);margin-top:14px">
           → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/04-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">Spec §4</a> ·
           <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">JecpSplitter.sol</a>
@@ -220,6 +222,93 @@
     <p class="cap-footnote" style="margin-top:32px">
       Stripe wallet path stays operational and unchanged. x402 is opt-in, additive, and backward compatible.
     </p>
+  </div>
+</section>
+
+<!-- ─── 1.8 TRUST MODEL ─── -->
+<section class="section section-light" id="trust">
+  <div class="container">
+    <span class="section-eyebrow">Trust model · v1.1.0-rc3</span>
+    <h2 class="section-title">How JECP settlement is safe.</h2>
+    <p class="hero-sub" style="margin-bottom:32px">
+      Three layers, separated by design. The split ratio cannot be changed by any
+      party — including Tufe. Even a full key compromise has a bounded blast radius.
+    </p>
+    <div class="problem-grid">
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>1. Splitter contract (immutable, audited)</h3>
+        <p>Controls the 85/10/5 split ratio. Cannot be upgraded or paused.
+        The Provider 85% claim is constructor-fixed. Splitter v1 is intentionally
+        immutable per design SC-A14 — there is no <code>pause()</code> function and
+        no admin path to rewrite shares.</p>
+      </div>
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>2. x402.org facilitator (trust-minimized)</h3>
+        <p>Only authorized to pull USDC from agent wallets into the Splitter contract.
+        Cannot call <code>recordSettlement</code> or any other Splitter method.
+        The facilitator is a USDC puller, not a settlement actor.</p>
+      </div>
+
+      <div class="problem-card" style="border-left:3px solid var(--cyan)">
+        <h3>3. Hub keeper (Tufe-operated, AWS KMS-backed)</h3>
+        <p>The single <code>AUTHORIZED_SETTLER</code> on the Splitter contract. Calls
+        <code>recordSettlement</code> to attribute each pull to a Provider. The keeper
+        key lives in AWS KMS — never exposed to the Hub process, never on disk in
+        plaintext. If compromised, the attacker is bounded by <code>PER_TX_CAP</code>
+        and cannot change the split ratio.</p>
+      </div>
+
+    </div>
+    <p class="cap-footnote" style="margin-top:24px">
+      Verify on BaseScan: read the Splitter contract, confirm the constructor-set
+      <code>AUTHORIZED_SETTLER</code> address, and check that the x402.org facilitator EOAs
+      (Coinbase x402 Facilitator 1-8, Canza, Daydreams, X402rs) do NOT have settlement
+      authority. <a href="https://github.com/jecpdev/jecp-contracts" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">jecp-contracts</a>
+    </p>
+  </div>
+</section>
+
+<!-- ─── 1.9 FAQ ─── -->
+<section class="section" id="faq">
+  <div class="container">
+    <span class="section-eyebrow">FAQ</span>
+    <h2 class="section-title">Settlement, in plain terms.</h2>
+    <div class="problem-grid">
+
+      <div class="problem-card">
+        <h3>Why two phases? Isn't x402 single-block?</h3>
+        <p>The earlier (pre-v1.1.0-rc3) framing said "single-block atomic." That
+        described the ideal case for an x402 facilitator that could record
+        settlements on-chain directly. In practice the x402.org facilitator is
+        specifically designed NOT to do that — its job is to execute the USDC
+        pull, and nothing more.</p>
+        <p>We agree with that design (it's better for trust minimization), so we
+        moved the settlement recording into a hardened Hub keeper service. The
+        atomicity guarantee is now: the split ratio is constructor-fixed in an
+        immutable contract; the keeper either records the split correctly or the
+        call reverts. End-state correctness is unchanged. Wall-clock latency is
+        ~3 seconds typical, ≤30 seconds at p99 worst-case.</p>
+        <p style="font-size:13px;color:var(--slate-500);margin-top:12px">
+          → <a href="https://github.com/jecpdev/jecp-spec/blob/main/spec/adr/0003-x402-integration.md" style="color:var(--cyan-dark);font-family:'JetBrains Mono',monospace">ADR-0003 Am-7</a>
+        </p>
+      </div>
+
+      <div class="problem-card">
+        <h3>What if the Hub keeper key is compromised?</h3>
+        <p>Bounded blast radius:</p>
+        <ul style="margin:8px 0 0 18px;padding:0;font-size:14.5px;line-height:1.7;color:var(--slate-700)">
+          <li>The Splitter contract is immutable. Split ratio (85/10/5) cannot be changed by any party.</li>
+          <li><code>PER_TX_CAP</code> limits the maximum amount any single <code>recordSettlement</code> call can move.</li>
+          <li>The keeper key lives in AWS KMS — never exposed to the Hub process, never logged, never on disk in plaintext.</li>
+          <li>IAM policy is least-privilege: only the Hub keeper Fly machine identity can call <code>kms:Sign</code> on the keeper key.</li>
+          <li>Rotation via Splitter v2 redeploy + provider remigration is the documented emergency path.</li>
+        </ul>
+        <p style="margin-top:12px">A keeper key compromise is a serious incident, not a catastrophic one. Splitter immutability means an attacker cannot rewrite the protocol.</p>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -433,7 +522,7 @@ cd jecp-spec/spec
           <tr><td>Pre-auth budgets (Mandate)</td><td>—</td><td>—</td><td>△</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Tiered trust (Trust Gate)</td><td>—</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Per-call billing</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
-          <tr><td>On-chain atomic revenue split</td><td>—</td><td>—</td><td>— (T+2 off-chain)</td><td>—</td><td class="hl">✓ atomic 85/10/5 (~3s)</td></tr>
+          <tr><td>On-chain revenue split</td><td>—</td><td>—</td><td>— (T+2 off-chain)</td><td>—</td><td class="hl">✓ immutable 85/10/5 (Hub keeper-recorded, ~3s)</td></tr>
           <tr><td>x402-native (USDC/Base)</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Multi-vendor by design</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td class="hl">✓</td></tr>
           <tr><td>Open spec (RFC 2119)</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="hl">✓</td></tr>
@@ -746,7 +835,7 @@ export const POST = provider.createHandler(async (req) =&gt; {
     <div class="quickstart" style="margin-top:48px;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:28px">
       <div class="quickstart-title" style="color:#06b6d4;font-weight:700;margin-bottom:12px">x402 mode — pay direct from a Base USDC wallet</div>
       <p style="margin:0 0 16px;color:#cbd5e1;font-size:14.5px;line-height:1.6">
-        Skip Stripe top-ups entirely. Fund a Base wallet with USDC, point the SDK at it, and every invoke settles on-chain. Roughly <strong style="color:#06b6d4">~1% in network gas</strong> instead of the 5.9% Stripe markup on small top-ups. Provider still keeps 85% — paid atomically (~3s typical on Base).
+        Skip Stripe top-ups entirely. Fund a Base wallet with USDC, point the SDK at it, and every invoke settles on-chain. Roughly <strong style="color:#06b6d4">~1% in network gas</strong> instead of the 5.9% Stripe markup on small top-ups. Provider still keeps 85% — recorded by the Hub keeper into an immutable Splitter, typically within ~3 seconds.
       </p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;font-size:13px">
         <div>
@@ -762,8 +851,8 @@ export const POST = provider.createHandler(async (req) =&gt; {
           <div style="color:#94a3b8">rolling-hour spend cap before signing</div>
         </div>
         <div>
-          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">atomic (~3s)</div>
-          <div style="color:#94a3b8">85/10/5 settles on Base in ~2s</div>
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace">~3s typical</div>
+          <div style="color:#94a3b8">85/10/5 recorded by Hub keeper (≤2 blocks, p99 ≤30s)</div>
         </div>
       </div>
       <div style="margin-top:18px">
@@ -782,7 +871,7 @@ export const POST = provider.createHandler(async (req) =&gt; {
     <div class="problem-grid">
       <div class="problem-card">
         <h3>Standards</h3>
-        <p>Apache 2.0 license · RFC 2119 keywords · JSON Schema 2020-12 · spec v1.0-draft.</p>
+        <p>Apache 2.0 license · RFC 2119 keywords · JSON Schema 2020-12 · spec v1.1.0-rc3 (rc3 supersedes rc2).</p>
       </div>
       <div class="problem-card">
         <h3>Reference impl</h3>
